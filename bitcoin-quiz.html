@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Knowledge Quiz | Test Your Skills</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --dark-bg: #0a0a0f;
+            --card-bg: #12121a;
+            --card-border: #252530;
+            --text-primary: #ffffff;
+            --text-secondary: #888899;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--btc-orange), #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 15px 30px;
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .difficulty-btn:hover {
+            border-color: var(--btc-orange);
+            color: var(--btc-orange);
+        }
+
+        .difficulty-btn.selected {
+            background: var(--btc-orange);
+            border-color: var(--btc-orange);
+            color: white;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--btc-orange), #ffa940);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(247, 147, 26, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--card-border);
+            color: var(--text-primary);
+        }
+
+        /* Quiz Screen */
+        .quiz-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--card-border);
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--btc-orange), #ffd700);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .question-counter {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 16px 20px;
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-primary);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .option:hover {
+            border-color: var(--btc-orange);
+        }
+
+        .option.selected {
+            border-color: var(--btc-orange);
+            background: rgba(247, 147, 26, 0.1);
+        }
+
+        .option.correct {
+            border-color: var(--green);
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .option.incorrect {
+            border-color: var(--red);
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .option.disabled {
+            pointer-events: none;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(247, 147, 26, 0.08);
+            border-left: 4px solid var(--btc-orange);
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .explanation-title {
+            font-weight: 600;
+            color: var(--btc-orange);
+            margin-bottom: 8px;
+        }
+
+        .explanation-text {
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .next-btn {
+            margin-top: 25px;
+            width: 100%;
+            display: none;
+        }
+
+        .next-btn.show {
+            display: block;
+        }
+
+        /* Results Screen */
+        .results-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 8px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            position: relative;
+        }
+
+        .score-circle.excellent {
+            border-color: var(--green);
+        }
+
+        .score-circle.good {
+            border-color: var(--btc-orange);
+        }
+
+        .score-circle.poor {
+            border-color: var(--red);
+        }
+
+        .score-number {
+            font-size: 3rem;
+            font-weight: 800;
+        }
+
+        .score-number.excellent { color: var(--green); }
+        .score-number.good { color: var(--btc-orange); }
+        .score-number.poor { color: var(--red); }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .result-message {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px 15px;
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.green { color: var(--green); }
+        .stat-value.red { color: var(--red); }
+        .stat-value.orange { color: var(--btc-orange); }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            background: #1da1f2;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 500px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .difficulty-selector { flex-direction: column; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🧠</div>
+            <h1>Bitcoin Knowledge Quiz</h1>
+            <p class="tagline">Test your Bitcoin knowledge</p>
+        </header>
+
+        <!-- Start Screen -->
+        <div class="card start-screen" id="startScreen">
+            <h2 style="margin-bottom: 15px;">Choose Your Difficulty</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 25px;">
+                10 questions to test your Bitcoin knowledge
+            </p>
+
+            <div class="difficulty-selector">
+                <button class="difficulty-btn selected" onclick="selectDifficulty('beginner')">
+                    🌱 Beginner
+                </button>
+                <button class="difficulty-btn" onclick="selectDifficulty('intermediate')">
+                    📈 Intermediate
+                </button>
+                <button class="difficulty-btn" onclick="selectDifficulty('expert')">
+                    🧙 Expert
+                </button>
+            </div>
+
+            <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div class="card quiz-screen" id="quizScreen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            
+            <div class="question-counter" id="questionCounter">Question 1 of 10</div>
+            
+            <div class="question" id="questionText">Loading question...</div>
+            
+            <div class="options" id="optionsContainer">
+                <!-- Options will be inserted here -->
+            </div>
+
+            <div class="explanation" id="explanation">
+                <div class="explanation-title">💡 Explanation</div>
+                <div class="explanation-text" id="explanationText"></div>
+            </div>
+
+            <button class="btn btn-primary next-btn" id="nextBtn" onclick="nextQuestion()">
+                Next Question →
+            </button>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="card results-screen" id="resultsScreen">
+            <div class="score-circle" id="scoreCircle">
+                <div class="score-number" id="scoreNumber">0</div>
+                <div class="score-label">out of 10</div>
+            </div>
+
+            <h2 class="result-title" id="resultTitle">Quiz Complete!</h2>
+            <p class="result-message" id="resultMessage">Loading results...</p>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value green" id="correctCount">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value red" id="incorrectCount">0</div>
+                    <div class="stat-label">Incorrect</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value orange" id="percentScore">0%</div>
+                    <div class="stat-label">Score</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
+                <button class="btn btn-secondary share-btn" onclick="shareResults()">Share on X</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Question database
+        const questions = {
+            beginner: [
+                {
+                    q: "What is the maximum number of Bitcoin that will ever exist?",
+                    options: ["1 million", "21 million", "100 million", "Unlimited"],
+                    correct: 1,
+                    explanation: "Bitcoin has a hard cap of 21 million coins. This scarcity is built into the protocol and cannot be changed."
+                },
+                {
+                    q: "Who created Bitcoin?",
+                    options: ["Elon Musk", "Satoshi Nakamoto", "Vitalik Buterin", "The US Government"],
+                    correct: 1,
+                    explanation: "Bitcoin was created by Satoshi Nakamoto, a pseudonymous person or group who published the Bitcoin whitepaper in 2008."
+                },
+                {
+                    q: "What is the smallest unit of Bitcoin called?",
+                    options: ["Mini-coin", "Satoshi", "Wei", "Bit"],
+                    correct: 1,
+                    explanation: "A satoshi (sat) is the smallest unit of Bitcoin, equal to 0.00000001 BTC (one hundred millionth)."
+                },
+                {
+                    q: "When was Bitcoin created?",
+                    options: ["2005", "2009", "2011", "2013"],
+                    correct: 1,
+                    explanation: "Bitcoin was launched on January 3, 2009, when Satoshi Nakamoto mined the genesis block (block 0)."
+                },
+                {
+                    q: "What technology powers Bitcoin?",
+                    options: ["Cloud computing", "Blockchain", "Artificial Intelligence", "Quantum computing"],
+                    correct: 1,
+                    explanation: "Bitcoin uses blockchain technology - a decentralized, distributed ledger that records all transactions."
+                },
+                {
+                    q: "How often does Bitcoin 'halving' occur?",
+                    options: ["Every year", "Every 2 years", "Every 4 years", "Every 10 years"],
+                    correct: 2,
+                    explanation: "Bitcoin halving occurs roughly every 4 years (every 210,000 blocks), cutting the mining reward in half."
+                },
+                {
+                    q: "What is a Bitcoin wallet?",
+                    options: ["A physical wallet for coins", "Software to store and manage Bitcoin", "A bank account", "A mining device"],
+                    correct: 1,
+                    explanation: "A Bitcoin wallet is software that stores your private keys and allows you to send and receive Bitcoin."
+                },
+                {
+                    q: "What does 'HODL' mean in Bitcoin culture?",
+                    options: ["Hold On for Dear Life", "A typo for 'hold' that became slang", "A trading strategy", "Both A and B"],
+                    correct: 3,
+                    explanation: "HODL originated as a typo for 'hold' in a 2013 forum post. It's now used to mean holding Bitcoin long-term."
+                },
+                {
+                    q: "How many satoshis are in one Bitcoin?",
+                    options: ["1,000", "1,000,000", "100,000,000", "1,000,000,000"],
+                    correct: 2,
+                    explanation: "There are 100 million satoshis in one Bitcoin (1 BTC = 100,000,000 sats)."
+                },
+                {
+                    q: "What is Bitcoin mining?",
+                    options: ["Digging for coins underground", "Creating fake Bitcoin", "Using computers to secure the network and process transactions", "Stealing Bitcoin"],
+                    correct: 2,
+                    explanation: "Mining uses computational power to validate transactions and secure the network. Miners are rewarded with new Bitcoin."
+                },
+                {
+                    q: "Can Bitcoin be counterfeited or duplicated?",
+                    options: ["Yes, easily", "Yes, but it's difficult", "No, it's cryptographically impossible", "Only by governments"],
+                    correct: 2,
+                    explanation: "Bitcoin cannot be counterfeited due to its cryptographic design. Every transaction is verified by the network."
+                },
+                {
+                    q: "What is 'DCA' in Bitcoin investing?",
+                    options: ["Digital Currency Asset", "Dollar Cost Averaging", "Decentralized Coin Acquisition", "Daily Crypto Analysis"],
+                    correct: 1,
+                    explanation: "DCA (Dollar Cost Averaging) means buying a fixed dollar amount of Bitcoin regularly, regardless of price."
+                }
+            ],
+            intermediate: [
+                {
+                    q: "What is the approximate block time for Bitcoin?",
+                    options: ["1 minute", "10 minutes", "30 minutes", "1 hour"],
+                    correct: 1,
+                    explanation: "Bitcoin targets a 10-minute average block time. The difficulty adjusts every 2016 blocks to maintain this."
+                },
+                {
+                    q: "What was the reward for mining a Bitcoin block in 2024?",
+                    options: ["12.5 BTC", "6.25 BTC", "3.125 BTC", "1.5625 BTC"],
+                    correct: 2,
+                    explanation: "After the April 2024 halving, the block reward became 3.125 BTC (down from 6.25 BTC)."
+                },
+                {
+                    q: "What is a 'node' in the Bitcoin network?",
+                    options: ["A mining computer", "A computer that validates transactions and maintains the blockchain", "A Bitcoin exchange", "A hardware wallet"],
+                    correct: 1,
+                    explanation: "A node is a computer running Bitcoin software that validates transactions and stores the blockchain."
+                },
+                {
+                    q: "What does 'self-custody' mean?",
+                    options: ["Letting an exchange hold your Bitcoin", "Controlling your own private keys", "Using a shared wallet", "Mining your own Bitcoin"],
+                    correct: 1,
+                    explanation: "Self-custody means you hold your own private keys, giving you full control of your Bitcoin."
+                },
+                {
+                    q: "What is the Lightning Network?",
+                    options: ["A Bitcoin mining pool", "A layer-2 scaling solution for faster, cheaper payments", "A new cryptocurrency", "A wallet app"],
+                    correct: 1,
+                    explanation: "Lightning Network is a layer-2 solution that enables fast, low-cost Bitcoin transactions off the main chain."
+                },
+                {
+                    q: "What is a 'hardware wallet'?",
+                    options: ["A wallet made of metal", "A physical device that securely stores private keys offline", "A bank vault", "A mining rig"],
+                    correct: 1,
+                    explanation: "A hardware wallet is a physical device that stores your private keys offline, providing strong security."
+                },
+                {
+                    q: "What is the Genesis Block?",
+                    options: ["The first Bitcoin exchange", "The first block in the Bitcoin blockchain", "Satoshi's first computer", "The Bitcoin whitepaper"],
+                    correct: 1,
+                    explanation: "The Genesis Block (Block 0) is the first block of the Bitcoin blockchain, mined by Satoshi on January 3, 2009."
+                },
+                {
+                    q: "What is 'proof of work'?",
+                    options: ["Proving you have Bitcoin", "A consensus mechanism requiring computational effort to mine blocks", "A KYC requirement", "A tax document"],
+                    correct: 1,
+                    explanation: "Proof of Work is Bitcoin's consensus mechanism where miners expend computational energy to validate transactions."
+                },
+                {
+                    q: "What percentage of all Bitcoin will be mined by 2032?",
+                    options: ["90%", "95%", "98%", "99%"],
+                    correct: 2,
+                    explanation: "About 98% of all Bitcoin will be mined by 2032. The last Bitcoin will be mined around 2140."
+                },
+                {
+                    q: "What is a Bitcoin 'mempool'?",
+                    options: ["A type of wallet", "Where unconfirmed transactions wait to be included in a block", "A mining pool", "Memory for storing Bitcoin"],
+                    correct: 1,
+                    explanation: "The mempool is where unconfirmed transactions wait before being included in a block by miners."
+                },
+                {
+                    q: "What does UTxO stand for?",
+                    options: ["Universal Transaction Output", "Unspent Transaction Output", "United Token Exchange Operator", "Ultra-fast Transaction Option"],
+                    correct: 1,
+                    explanation: "UTXO (Unspent Transaction Output) is how Bitcoin tracks ownership. Each UTXO can only be spent once."
+                },
+                {
+                    q: "What is the current Bitcoin inflation rate (approximately)?",
+                    options: ["0%", "~1.7%", "~5%", "~10%"],
+                    correct: 1,
+                    explanation: "After the 2024 halving, Bitcoin's inflation rate dropped to approximately 0.85% per year."
+                }
+            ],
+            expert: [
+                {
+                    q: "What was embedded in the Genesis Block's coinbase transaction?",
+                    options: ["'Hello World'", "'The Times 03/Jan/2009 Chancellor on brink of second bailout for banks'", "Satoshi's real name", "Nothing"],
+                    correct: 1,
+                    explanation: "Satoshi embedded a headline from The Times newspaper, highlighting Bitcoin's creation amid the 2008 financial crisis."
+                },
+                {
+                    q: "What is the theoretical maximum number of transactions Bitcoin can process per second on-chain?",
+                    options: ["3-7 TPS", "50-100 TPS", "1,000 TPS", "10,000 TPS"],
+                    correct: 0,
+                    explanation: "Bitcoin's base layer can handle approximately 3-7 transactions per second. Layer 2 solutions like Lightning scale this significantly."
+                },
+                {
+                    q: "What BIP (Bitcoin Improvement Proposal) introduced Segregated Witness (SegWit)?",
+                    options: ["BIP 32", "BIP 141", "BIP 340", "BIP 39"],
+                    correct: 1,
+                    explanation: "BIP 141 defined Segregated Witness, which separated signature data from transaction data, fixing malleability and increasing capacity."
+                },
+                {
+                    q: "What is the difficulty adjustment period in Bitcoin?",
+                    options: ["100 blocks", "1,000 blocks", "2,016 blocks", "10,000 blocks"],
+                    correct: 2,
+                    explanation: "Bitcoin adjusts mining difficulty every 2,016 blocks (approximately two weeks) to maintain ~10 minute block times."
+                },
+                {
+                    q: "What cryptographic hash function does Bitcoin use?",
+                    options: ["MD5", "SHA-256", "Keccak-256", "RIPEMD-160 only"],
+                    correct: 1,
+                    explanation: "Bitcoin uses SHA-256 for mining and transaction hashing. It also uses RIPEMD-160 for address generation."
+                },
+                {
+                    q: "What is the maximum block size in Bitcoin after SegWit?",
+                    options: ["1 MB", "2 MB", "4 MB (weight)", "8 MB"],
+                    correct: 2,
+                    explanation: "SegWit introduced 'block weight' with a maximum of 4 million weight units, effectively allowing ~2-4 MB of data."
+                },
+                {
+                    q: "What is Taproot (BIP 340, 341, 342)?",
+                    options: ["A new mining algorithm", "Privacy and smart contract improvements activated in 2021", "A Lightning Network upgrade", "A new wallet standard"],
+                    correct: 1,
+                    explanation: "Taproot improved privacy and efficiency for complex transactions, enabling more sophisticated smart contracts on Bitcoin."
+                },
+                {
+                    q: "How many total halvings will occur before the block reward reaches zero?",
+                    options: ["21", "32", "64", "Infinite"],
+                    correct: 1,
+                    explanation: "There will be 32 halvings total. After the 32nd halving (around 2140), the reward drops below 1 satoshi."
+                },
+                {
+                    q: "What is the 'timechain' another name for?",
+                    options: ["Lightning Network", "The Bitcoin blockchain", "A hardware wallet", "A mining pool"],
+                    correct: 1,
+                    explanation: "Satoshi originally called it a 'timechain' because blocks are timestamped. Some Bitcoiners prefer this term."
+                },
+                {
+                    q: "What prevents double-spending in Bitcoin?",
+                    options: ["Banks", "Proof of Work consensus and the longest chain rule", "Government regulation", "Encryption alone"],
+                    correct: 1,
+                    explanation: "Bitcoin prevents double-spending through PoW consensus where the longest valid chain is considered the truth."
+                },
+                {
+                    q: "What is the 'coinbase transaction'?",
+                    options: ["A transaction on Coinbase exchange", "The first transaction in each block that creates new Bitcoin", "A type of multi-sig wallet", "A privacy feature"],
+                    correct: 1,
+                    explanation: "The coinbase transaction is the first transaction in every block, creating new Bitcoin as the mining reward."
+                },
+                {
+                    q: "What does 'Byzantine Fault Tolerance' mean for Bitcoin?",
+                    options: ["It can survive physical attacks", "The network can reach consensus even with malicious participants", "It's immune to hacking", "Transactions are reversible"],
+                    correct: 1,
+                    explanation: "Bitcoin solves the Byzantine Generals Problem, allowing trustless consensus even when some participants are dishonest."
+                }
+            ]
+        };
+
+        let currentDifficulty = 'beginner';
+        let currentQuestions = [];
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function selectDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startQuiz() {
+            // Get 10 random questions
+            currentQuestions = shuffleArray(questions[currentDifficulty]).slice(0, 10);
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('quizScreen').style.display = 'block';
+            document.getElementById('resultsScreen').style.display = 'none';
+
+            showQuestion();
+        }
+
+        function showQuestion() {
+            answered = false;
+            const q = currentQuestions[currentQuestion];
+            
+            document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} of 10`;
+            document.getElementById('progressFill').style.width = `${(currentQuestion / 10) * 100}%`;
+            document.getElementById('questionText').textContent = q.q;
+            
+            const optionsHTML = q.options.map((opt, i) => 
+                `<button class="option" onclick="selectOption(${i})">${opt}</button>`
+            ).join('');
+            
+            document.getElementById('optionsContainer').innerHTML = optionsHTML;
+            document.getElementById('explanation').classList.remove('show');
+            document.getElementById('nextBtn').classList.remove('show');
+        }
+
+        function selectOption(index) {
+            if (answered) return;
+            answered = true;
+
+            const q = currentQuestions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === q.correct) {
+                    opt.classList.add('correct');
+                } else if (i === index && index !== q.correct) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            if (index === q.correct) {
+                score++;
+            }
+
+            document.getElementById('explanationText').textContent = q.explanation;
+            document.getElementById('explanation').classList.add('show');
+            document.getElementById('nextBtn').classList.add('show');
+            document.getElementById('nextBtn').textContent = currentQuestion === 9 ? 'See Results' : 'Next Question →';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= 10) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
+
+            const percent = (score / 10) * 100;
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreNumber = document.getElementById('scoreNumber');
+            
+            scoreCircle.className = 'score-circle';
+            scoreNumber.className = 'score-number';
+            
+            if (percent >= 80) {
+                scoreCircle.classList.add('excellent');
+                scoreNumber.classList.add('excellent');
+                document.getElementById('resultTitle').textContent = '🏆 Bitcoin Expert!';
+                document.getElementById('resultMessage').textContent = 'Impressive! You really know your Bitcoin. Keep stacking that knowledge (and sats)!';
+            } else if (percent >= 50) {
+                scoreCircle.classList.add('good');
+                scoreNumber.classList.add('good');
+                document.getElementById('resultTitle').textContent = '👍 Good Job!';
+                document.getElementById('resultMessage').textContent = 'Solid knowledge! Keep learning and you\'ll be a Bitcoin expert in no time.';
+            } else {
+                scoreCircle.classList.add('poor');
+                scoreNumber.classList.add('poor');
+                document.getElementById('resultTitle').textContent = '📚 Keep Learning!';
+                document.getElementById('resultMessage').textContent = 'Bitcoin is complex - that\'s okay! Try again and learn from the explanations.';
+            }
+
+            scoreNumber.textContent = score;
+            document.getElementById('correctCount').textContent = score;
+            document.getElementById('incorrectCount').textContent = 10 - score;
+            document.getElementById('percentScore').textContent = percent + '%';
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultsScreen').style.display = 'none';
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+
+        function shareResults() {
+            const percent = (score / 10) * 100;
+            const emoji = percent >= 80 ? '🏆' : percent >= 50 ? '👍' : '📚';
+            const text = `${emoji} I scored ${score}/10 on the Bitcoin Knowledge Quiz!\n\nTest your Bitcoin knowledge:`;
+            const url = 'https://martihodl.github.io/superbit-tools/bitcoin-quiz.html';
+            
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
