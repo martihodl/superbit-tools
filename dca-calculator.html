@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin DCA Calculator | Dollar Cost Averaging</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --dark-bg: #0a0a0f;
+            --card-bg: #12121a;
+            --card-border: #252530;
+            --text-primary: #ffffff;
+            --text-secondary: #888899;
+            --green: #22c55e;
+            --red: #ef4444;
+            --blue: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--btc-orange), #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--btc-orange);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-orange {
+            background: linear-gradient(135deg, var(--btc-orange), #ffa940);
+            color: white;
+        }
+
+        .btn-orange:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(247, 147, 26, 0.3);
+        }
+
+        /* Results */
+        .result-card {
+            background: linear-gradient(135deg, var(--card-bg), #1a1a2e);
+            border: 2px solid var(--btc-orange);
+        }
+
+        .result-header {
+            text-align: center;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 25px;
+        }
+
+        .result-btc {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--btc-orange);
+            margin-bottom: 5px;
+        }
+
+        .result-sats {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.orange { color: var(--btc-orange); }
+        .stat-value.green { color: var(--green); }
+        .stat-value.blue { color: var(--blue); }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Chart */
+        .chart-section {
+            margin-top: 30px;
+        }
+
+        .chart-title {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .chart-container {
+            background: var(--dark-bg);
+            border-radius: 12px;
+            padding: 20px;
+            height: 200px;
+            position: relative;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100%;
+            gap: 5px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--btc-orange), rgba(247, 147, 26, 0.5));
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s;
+            max-width: 30px;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* Frequency buttons */
+        .frequency-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .freq-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .freq-btn:hover {
+            border-color: var(--btc-orange);
+            color: var(--btc-orange);
+        }
+
+        .freq-btn.active {
+            background: var(--btc-orange);
+            border-color: var(--btc-orange);
+            color: white;
+        }
+
+        /* Milestones */
+        .milestones {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .milestone-title {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .milestone-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .milestone-reached {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .milestone-target {
+            font-weight: 600;
+        }
+
+        .milestone-date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .milestone-date.reached {
+            color: var(--green);
+        }
+
+        /* Quote */
+        .quote {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(247, 147, 26, 0.08);
+            border-left: 4px solid var(--btc-orange);
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .disclaimer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">📊</div>
+            <h1>Bitcoin DCA Calculator</h1>
+            <p class="tagline">See the power of consistent Bitcoin stacking</p>
+        </header>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">📅 Your DCA Plan</div>
+
+                <div class="frequency-buttons">
+                    <button class="freq-btn active" onclick="setFrequency('daily')">Daily</button>
+                    <button class="freq-btn" onclick="setFrequency('weekly')">Weekly</button>
+                    <button class="freq-btn" onclick="setFrequency('biweekly')">Bi-Weekly</button>
+                    <button class="freq-btn" onclick="setFrequency('monthly')">Monthly</button>
+                </div>
+
+                <div class="input-group">
+                    <label>Amount per Purchase ($)</label>
+                    <input type="number" id="amount" value="50" min="1">
+                </div>
+
+                <div class="input-group">
+                    <label>DCA Period (Years)</label>
+                    <input type="number" id="years" value="4" min="1" max="30">
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Current BTC Price ($)</label>
+                        <input type="number" id="startPrice" value="97000">
+                    </div>
+                    <div class="input-group">
+                        <label>Expected End Price ($)</label>
+                        <input type="number" id="endPrice" value="250000">
+                    </div>
+                </div>
+
+                <button class="btn btn-orange" onclick="calculate()">Calculate Stack</button>
+            </div>
+
+            <div class="card result-card">
+                <div class="result-header">
+                    <div class="result-btc" id="totalBtc">0.5000 BTC</div>
+                    <div class="result-sats" id="totalSats">50,000,000 sats</div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value blue" id="totalInvested">$10,400</div>
+                        <div class="stat-label">Total Invested</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value green" id="finalValue">$125,000</div>
+                        <div class="stat-label">Final Value</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value orange" id="avgCost">$52,000</div>
+                        <div class="stat-label">Avg Cost/BTC</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value green" id="totalReturn">+1,102%</div>
+                        <div class="stat-label">Total Return</div>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <div class="chart-title">📈 Stack Growth Over Time</div>
+                    <div class="chart-container">
+                        <div class="chart-bars" id="chartBars">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                    <div class="chart-labels" id="chartLabels">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <div class="milestones">
+                    <div class="milestone-title">🎯 Milestones</div>
+                    <div id="milestonesList">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quote">
+            "Time in the market beats timing the market. DCA removes the stress of trying to predict prices and lets you focus on consistent accumulation."
+        </div>
+
+        <div class="disclaimer">
+            ⚠️ <strong>Not Financial Advice.</strong> This calculator uses a simplified linear price model. 
+            Actual results will vary based on market conditions. Bitcoin is volatile.
+        </div>
+    </div>
+
+    <script>
+        let frequency = 'weekly';
+
+        function setFrequency(freq) {
+            frequency = freq;
+            document.querySelectorAll('.freq-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            calculate();
+        }
+
+        function getPeriodsPerYear() {
+            switch(frequency) {
+                case 'daily': return 365;
+                case 'weekly': return 52;
+                case 'biweekly': return 26;
+                case 'monthly': return 12;
+                default: return 52;
+            }
+        }
+
+        function formatCurrency(num) {
+            if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(2) + 'M';
+            }
+            return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        }
+
+        function formatBTC(btc) {
+            return btc.toFixed(4) + ' BTC';
+        }
+
+        function calculate() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const years = parseFloat(document.getElementById('years').value);
+            const startPrice = parseFloat(document.getElementById('startPrice').value);
+            const endPrice = parseFloat(document.getElementById('endPrice').value);
+            
+            const periodsPerYear = getPeriodsPerYear();
+            const totalPeriods = periodsPerYear * years;
+            const totalInvested = amount * totalPeriods;
+
+            // Simulate DCA with linear price growth
+            let totalBtc = 0;
+            const btcByPeriod = [];
+            
+            for (let i = 0; i < totalPeriods; i++) {
+                const progress = i / totalPeriods;
+                const currentPrice = startPrice + (endPrice - startPrice) * progress;
+                const btcBought = amount / currentPrice;
+                totalBtc += btcBought;
+                
+                // Store quarterly snapshots for chart
+                if (i % Math.floor(totalPeriods / 8) === 0) {
+                    btcByPeriod.push(totalBtc);
+                }
+            }
+            btcByPeriod.push(totalBtc); // Final value
+
+            const avgCost = totalInvested / totalBtc;
+            const finalValue = totalBtc * endPrice;
+            const totalReturn = ((finalValue - totalInvested) / totalInvested * 100);
+            const totalSats = Math.round(totalBtc * 100000000);
+
+            // Update display
+            document.getElementById('totalBtc').textContent = formatBTC(totalBtc);
+            document.getElementById('totalSats').textContent = totalSats.toLocaleString() + ' sats';
+            document.getElementById('totalInvested').textContent = formatCurrency(totalInvested);
+            document.getElementById('finalValue').textContent = formatCurrency(finalValue);
+            document.getElementById('avgCost').textContent = formatCurrency(avgCost);
+            document.getElementById('totalReturn').textContent = '+' + totalReturn.toFixed(0) + '%';
+
+            // Update chart
+            updateChart(btcByPeriod, years);
+
+            // Update milestones
+            updateMilestones(amount, startPrice, endPrice, periodsPerYear);
+        }
+
+        function updateChart(data, years) {
+            const chartBars = document.getElementById('chartBars');
+            const chartLabels = document.getElementById('chartLabels');
+            
+            const maxBtc = Math.max(...data);
+            
+            chartBars.innerHTML = data.map(btc => 
+                `<div class="chart-bar" style="height: ${(btc / maxBtc * 100)}%"></div>`
+            ).join('');
+
+            // Generate year labels
+            const labelCount = data.length;
+            const labels = [];
+            for (let i = 0; i < labelCount; i++) {
+                const yearMark = Math.round((i / (labelCount - 1)) * years);
+                labels.push(`Y${yearMark}`);
+            }
+            chartLabels.innerHTML = labels.map(l => `<span>${l}</span>`).join('');
+        }
+
+        function updateMilestones(amount, startPrice, endPrice, periodsPerYear) {
+            const milestones = [
+                { btc: 0.01, label: '0.01 BTC (1M sats)' },
+                { btc: 0.1, label: '0.1 BTC' },
+                { btc: 0.21, label: '0.21 BTC (21M Club)' },
+                { btc: 0.5, label: '0.5 BTC' },
+                { btc: 1, label: '1 BTC (Whole Coiner!)' },
+            ];
+
+            const milestonesList = document.getElementById('milestonesList');
+            milestonesList.innerHTML = '';
+
+            milestones.forEach(milestone => {
+                // Calculate periods to reach milestone
+                let btc = 0;
+                let periods = 0;
+                const maxPeriods = periodsPerYear * 30;
+                
+                while (btc < milestone.btc && periods < maxPeriods) {
+                    const progress = periods / maxPeriods;
+                    const price = startPrice + (endPrice - startPrice) * Math.min(progress * 3, 1);
+                    btc += amount / price;
+                    periods++;
+                }
+
+                const reachable = periods < maxPeriods;
+                const timeStr = reachable ? formatTime(periods, periodsPerYear) : 'Beyond 30y';
+
+                const item = document.createElement('div');
+                item.className = 'milestone-item' + (reachable && periods < periodsPerYear * 4 ? ' milestone-reached' : '');
+                item.innerHTML = `
+                    <span class="milestone-target">${milestone.label}</span>
+                    <span class="milestone-date ${reachable ? 'reached' : ''}">${timeStr}</span>
+                `;
+                milestonesList.appendChild(item);
+            });
+        }
+
+        function formatTime(periods, periodsPerYear) {
+            const years = periods / periodsPerYear;
+            if (years < 1) {
+                const months = Math.round(years * 12);
+                return months + ' months';
+            }
+            return years.toFixed(1) + ' years';
+        }
+
+        // Auto-calculate on input change
+        document.querySelectorAll('input').forEach(el => {
+            el.addEventListener('input', calculate);
+        });
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
