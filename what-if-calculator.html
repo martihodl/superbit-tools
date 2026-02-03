@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin "What If" Calculator | Historical Returns</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --dark-bg: #0a0a0f;
+            --card-bg: #12121a;
+            --card-border: #252530;
+            --text-primary: #ffffff;
+            --text-secondary: #888899;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--btc-orange), #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--btc-orange);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-orange {
+            background: linear-gradient(135deg, var(--btc-orange), #ffa940);
+            color: white;
+        }
+
+        .btn-orange:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(247, 147, 26, 0.3);
+        }
+
+        /* Results */
+        .result-card {
+            background: linear-gradient(135deg, var(--card-bg), #1a1a2e);
+            border: 2px solid var(--btc-orange);
+        }
+
+        .result-header {
+            text-align: center;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 25px;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .result-sub {
+            color: var(--text-secondary);
+            margin-top: 10px;
+        }
+
+        .result-sub span {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.orange { color: var(--btc-orange); }
+        .stat-value.green { color: var(--green); }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Presets */
+        .presets {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 10px 15px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--btc-orange);
+            color: var(--btc-orange);
+        }
+
+        /* Timeline */
+        .timeline-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .timeline-title {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .timeline-date {
+            color: var(--text-secondary);
+        }
+
+        .timeline-value {
+            font-weight: 600;
+        }
+
+        .timeline-value.green { color: var(--green); }
+
+        /* Quote */
+        .quote {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(247, 147, 26, 0.08);
+            border-left: 4px solid var(--btc-orange);
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .disclaimer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .comparison-item {
+            text-align: center;
+        }
+
+        .comparison-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .comparison-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">⏰</div>
+            <h1>"What If" Calculator</h1>
+            <p class="tagline">What would your past Bitcoin investment be worth today?</p>
+        </header>
+
+        <div class="card">
+            <div class="presets">
+                <button class="preset-btn" onclick="setPreset(2015, 1000)">$1K in 2015</button>
+                <button class="preset-btn" onclick="setPreset(2017, 1000)">$1K in 2017</button>
+                <button class="preset-btn" onclick="setPreset(2020, 1000)">$1K in 2020</button>
+                <button class="preset-btn" onclick="setPreset(2021, 1000)">$1K in 2021</button>
+                <button class="preset-btn" onclick="setPreset(2015, 100)">$100 in 2015</button>
+                <button class="preset-btn" onclick="setPreset(2012, 100)">$100 in 2012</button>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Investment Amount ($)</label>
+                    <input type="number" id="amount" value="1000" min="1">
+                </div>
+                <div class="input-group">
+                    <label>Investment Year</label>
+                    <select id="year">
+                        <option value="2010">2010 (BTC ≈ $0.10)</option>
+                        <option value="2011">2011 (BTC ≈ $5)</option>
+                        <option value="2012">2012 (BTC ≈ $13)</option>
+                        <option value="2013">2013 (BTC ≈ $100)</option>
+                        <option value="2014">2014 (BTC ≈ $500)</option>
+                        <option value="2015" selected>2015 (BTC ≈ $300)</option>
+                        <option value="2016">2016 (BTC ≈ $600)</option>
+                        <option value="2017">2017 (BTC ≈ $1,000)</option>
+                        <option value="2018">2018 (BTC ≈ $8,000)</option>
+                        <option value="2019">2019 (BTC ≈ $4,000)</option>
+                        <option value="2020">2020 (BTC ≈ $10,000)</option>
+                        <option value="2021">2021 (BTC ≈ $35,000)</option>
+                        <option value="2022">2022 (BTC ≈ $40,000)</option>
+                        <option value="2023">2023 (BTC ≈ $25,000)</option>
+                        <option value="2024">2024 (BTC ≈ $45,000)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Current BTC Price ($) - for calculations</label>
+                <input type="number" id="currentPrice" value="97000">
+            </div>
+
+            <button class="btn btn-orange" onclick="calculate()">Calculate What If</button>
+        </div>
+
+        <div class="card result-card" id="results">
+            <div class="result-header">
+                <div class="result-label">Your investment would be worth</div>
+                <div class="result-value" id="resultValue">$323,333</div>
+                <div class="result-sub">That's a <span id="returnPercent">32,233%</span> return!</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value orange" id="btcOwned">3.33 BTC</div>
+                    <div class="stat-label">Bitcoin You'd Own</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value green" id="profit">$322,333</div>
+                    <div class="stat-label">Profit</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value orange" id="buyPrice">$300</div>
+                    <div class="stat-label">Buy Price</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value green" id="multiplier">323x</div>
+                    <div class="stat-label">Return Multiple</div>
+                </div>
+            </div>
+
+            <div class="timeline-section">
+                <div class="timeline-title">📈 If You Had Invested $1,000...</div>
+                <div id="comparisons">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+
+            <div class="quote" id="quote">
+                "The best time to buy Bitcoin was years ago. The second best time is now."
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            ⚠️ <strong>Not Financial Advice.</strong> Historical prices are approximate yearly averages. 
+            Past performance does not guarantee future results. Bitcoin is volatile.
+        </div>
+    </div>
+
+    <script>
+        // Historical BTC prices (approximate yearly averages)
+        const historicalPrices = {
+            2010: 0.10,
+            2011: 5,
+            2012: 13,
+            2013: 100,
+            2014: 500,
+            2015: 300,
+            2016: 600,
+            2017: 1000,
+            2018: 8000,
+            2019: 4000,
+            2020: 10000,
+            2021: 35000,
+            2022: 40000,
+            2023: 25000,
+            2024: 45000
+        };
+
+        function setPreset(year, amount) {
+            document.getElementById('year').value = year;
+            document.getElementById('amount').value = amount;
+            calculate();
+        }
+
+        function formatCurrency(num) {
+            if (num >= 1000000000) {
+                return '$' + (num / 1000000000).toFixed(2) + 'B';
+            }
+            if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(2) + 'M';
+            }
+            if (num >= 1000) {
+                return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            }
+            return '$' + num.toFixed(2);
+        }
+
+        function calculate() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const year = parseInt(document.getElementById('year').value);
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+            
+            const buyPrice = historicalPrices[year];
+            const btcOwned = amount / buyPrice;
+            const currentValue = btcOwned * currentPrice;
+            const profit = currentValue - amount;
+            const returnPercent = ((currentValue - amount) / amount * 100);
+            const multiplier = currentValue / amount;
+
+            document.getElementById('resultValue').textContent = formatCurrency(currentValue);
+            document.getElementById('returnPercent').textContent = returnPercent.toLocaleString('en-US', { maximumFractionDigits: 0 }) + '%';
+            document.getElementById('btcOwned').textContent = btcOwned.toFixed(4) + ' BTC';
+            document.getElementById('profit').textContent = formatCurrency(profit);
+            document.getElementById('buyPrice').textContent = formatCurrency(buyPrice);
+            document.getElementById('multiplier').textContent = multiplier.toFixed(0) + 'x';
+
+            // Generate comparisons
+            generateComparisons(currentPrice);
+
+            // Update quote based on results
+            updateQuote(multiplier, year);
+        }
+
+        function generateComparisons(currentPrice) {
+            const comparisons = document.getElementById('comparisons');
+            comparisons.innerHTML = '';
+
+            const years = [2010, 2012, 2015, 2017, 2020, 2022];
+            
+            years.forEach(year => {
+                const buyPrice = historicalPrices[year];
+                const btc = 1000 / buyPrice;
+                const value = btc * currentPrice;
+                
+                const row = document.createElement('div');
+                row.className = 'comparison-row';
+                row.innerHTML = `
+                    <div class="comparison-item">
+                        <div class="comparison-value">${year}</div>
+                        <div class="comparison-label">Year</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-value">${formatCurrency(buyPrice)}</div>
+                        <div class="comparison-label">BTC Price</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-value">${btc.toFixed(2)} BTC</div>
+                        <div class="comparison-label">Would Own</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-value" style="color: var(--green);">${formatCurrency(value)}</div>
+                        <div class="comparison-label">Worth Today</div>
+                    </div>
+                `;
+                comparisons.appendChild(row);
+            });
+        }
+
+        function updateQuote(multiplier, year) {
+            const quotes = [
+                `$1,000 in ${year} would be worth ${multiplier.toFixed(0)}x today. Time in the market beats timing the market.`,
+                `"The best time to plant a tree was 20 years ago. The second best time is now." - Chinese Proverb`,
+                `Every sat you don't buy today is a sat you'll wish you bought tomorrow.`,
+                `${multiplier.toFixed(0)}x returns. This is what conviction and patience look like.`,
+                `Stack sats. Stay humble. Time is on your side.`
+            ];
+            
+            document.getElementById('quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+        }
+
+        // Auto-calculate on change
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('change', calculate);
+            el.addEventListener('input', calculate);
+        });
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
