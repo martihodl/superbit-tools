@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin vs S&P 500 | Asset Comparison</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --sp-blue: #4f46e5;
+            --dark-bg: #0a0a0f;
+            --card-bg: #12121a;
+            --card-border: #252530;
+            --text-primary: #ffffff;
+            --text-secondary: #888899;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .vs-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .vs-icon {
+            font-size: 3rem;
+        }
+
+        .vs-text {
+            font-size: 2rem;
+            color: var(--text-secondary);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--btc-orange);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: linear-gradient(135deg, var(--btc-orange), var(--sp-blue));
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(247, 147, 26, 0.2);
+        }
+
+        /* Comparison Results */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .asset-card {
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .asset-card.btc {
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.15), rgba(247, 147, 26, 0.05));
+            border: 2px solid var(--btc-orange);
+        }
+
+        .asset-card.sp {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(79, 70, 229, 0.05));
+            border: 2px solid var(--sp-blue);
+        }
+
+        .asset-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .asset-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .asset-name.btc { color: var(--btc-orange); }
+        .asset-name.sp { color: var(--sp-blue); }
+
+        .asset-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .asset-value.btc { color: var(--btc-orange); }
+        .asset-value.sp { color: var(--sp-blue); }
+
+        .asset-return {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .asset-return.positive { color: var(--green); }
+        .asset-return.negative { color: var(--red); }
+
+        .asset-stats {
+            text-align: left;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+        }
+
+        /* Winner Banner */
+        .winner-banner {
+            text-align: center;
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .winner-banner.btc {
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.2), rgba(247, 147, 26, 0.05));
+            border: 2px solid var(--btc-orange);
+        }
+
+        .winner-banner.sp {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(79, 70, 229, 0.05));
+            border: 2px solid var(--sp-blue);
+        }
+
+        .winner-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .winner-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .winner-name.btc { color: var(--btc-orange); }
+        .winner-name.sp { color: var(--sp-blue); }
+
+        .winner-margin {
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .winner-margin span {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        /* Timeline */
+        .timeline-section {
+            margin-top: 25px;
+        }
+
+        .timeline-title {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .timeline-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .timeline-header span:nth-child(2) { color: var(--btc-orange); }
+        .timeline-header span:nth-child(3) { color: var(--sp-blue); }
+
+        .timeline-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .timeline-row .btc { color: var(--btc-orange); }
+        .timeline-row .sp { color: var(--sp-blue); }
+
+        /* Assumptions */
+        .assumptions {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .assumptions h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .disclaimer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 600px) {
+            .comparison-grid { grid-template-columns: 1fr; }
+            .vs-header { flex-direction: column; gap: 10px; }
+            .asset-value { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="vs-header">
+                <span class="vs-icon">₿</span>
+                <span class="vs-text">vs</span>
+                <span class="vs-icon">📈</span>
+            </div>
+            <h1>Bitcoin vs S&P 500</h1>
+            <p class="tagline">Compare returns over any time period</p>
+        </header>
+
+        <div class="card">
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Starting Investment ($)</label>
+                    <input type="number" id="investment" value="10000" min="100">
+                </div>
+                <div class="input-group">
+                    <label>Investment Period (Years)</label>
+                    <input type="number" id="years" value="5" min="1" max="15">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Bitcoin CAGR (%)</label>
+                    <input type="number" id="btcCagr" value="50" min="0" max="200">
+                    <small style="color: var(--text-secondary); font-size: 0.8rem;">Historical ~50-100% CAGR</small>
+                </div>
+                <div class="input-group">
+                    <label>S&P 500 CAGR (%)</label>
+                    <input type="number" id="spCagr" value="10" min="0" max="50">
+                    <small style="color: var(--text-secondary); font-size: 0.8rem;">Historical ~10% avg</small>
+                </div>
+            </div>
+
+            <button class="btn" onclick="calculate()">Compare Returns</button>
+        </div>
+
+        <div class="winner-banner btc" id="winnerBanner">
+            <div class="winner-label">🏆 Winner</div>
+            <div class="winner-name btc" id="winnerName">Bitcoin</div>
+            <div class="winner-margin" id="winnerMargin">Outperformed by <span>$500,000</span></div>
+        </div>
+
+        <div class="comparison-grid">
+            <div class="asset-card btc">
+                <div class="asset-icon">₿</div>
+                <div class="asset-name btc">Bitcoin</div>
+                <div class="asset-value btc" id="btcValue">$75,937</div>
+                <div class="asset-return positive" id="btcReturn">+659%</div>
+                <div class="asset-stats">
+                    <div class="stat-row">
+                        <span class="stat-label">Initial</span>
+                        <span id="btcInitial">$10,000</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Profit</span>
+                        <span style="color: var(--green);" id="btcProfit">$65,937</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Annual Return</span>
+                        <span id="btcAnnual">50%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="asset-card sp">
+                <div class="asset-icon">📈</div>
+                <div class="asset-name sp">S&P 500</div>
+                <div class="asset-value sp" id="spValue">$16,105</div>
+                <div class="asset-return positive" id="spReturn">+61%</div>
+                <div class="asset-stats">
+                    <div class="stat-row">
+                        <span class="stat-label">Initial</span>
+                        <span id="spInitial">$10,000</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Profit</span>
+                        <span style="color: var(--green);" id="spProfit">$6,105</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Annual Return</span>
+                        <span id="spAnnual">10%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="timeline-section">
+                <div class="timeline-title">📅 Year-by-Year Comparison</div>
+                <div class="timeline-header">
+                    <span>Year</span>
+                    <span>Bitcoin</span>
+                    <span>S&P 500</span>
+                </div>
+                <div id="timeline">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+
+            <div class="assumptions">
+                <h4>📋 Assumptions</h4>
+                <ul>
+                    <li>Returns are compounded annually at the specified CAGR</li>
+                    <li>No taxes, fees, or dividends considered</li>
+                    <li>Historical Bitcoin CAGR has ranged from 50-200% in different periods</li>
+                    <li>Historical S&P 500 average is ~10% (including dividends)</li>
+                    <li>Past performance does not guarantee future results</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            ⚠️ <strong>Not Financial Advice.</strong> This is a simplified comparison. 
+            Both assets have different risk profiles. Bitcoin is significantly more volatile. 
+            Always do your own research.
+        </div>
+    </div>
+
+    <script>
+        function formatCurrency(num) {
+            if (num >= 1000000000) {
+                return '$' + (num / 1000000000).toFixed(2) + 'B';
+            }
+            if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(2) + 'M';
+            }
+            return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        }
+
+        function calculate() {
+            const investment = parseFloat(document.getElementById('investment').value);
+            const years = parseInt(document.getElementById('years').value);
+            const btcCagr = parseFloat(document.getElementById('btcCagr').value) / 100;
+            const spCagr = parseFloat(document.getElementById('spCagr').value) / 100;
+
+            // Calculate final values
+            const btcFinal = investment * Math.pow(1 + btcCagr, years);
+            const spFinal = investment * Math.pow(1 + spCagr, years);
+
+            const btcProfit = btcFinal - investment;
+            const spProfit = spFinal - investment;
+
+            const btcReturn = ((btcFinal - investment) / investment * 100);
+            const spReturn = ((spFinal - investment) / investment * 100);
+
+            // Update BTC display
+            document.getElementById('btcValue').textContent = formatCurrency(btcFinal);
+            document.getElementById('btcReturn').textContent = '+' + btcReturn.toFixed(0) + '%';
+            document.getElementById('btcInitial').textContent = formatCurrency(investment);
+            document.getElementById('btcProfit').textContent = formatCurrency(btcProfit);
+            document.getElementById('btcAnnual').textContent = (btcCagr * 100).toFixed(0) + '%';
+
+            // Update S&P display
+            document.getElementById('spValue').textContent = formatCurrency(spFinal);
+            document.getElementById('spReturn').textContent = '+' + spReturn.toFixed(0) + '%';
+            document.getElementById('spInitial').textContent = formatCurrency(investment);
+            document.getElementById('spProfit').textContent = formatCurrency(spProfit);
+            document.getElementById('spAnnual').textContent = (spCagr * 100).toFixed(0) + '%';
+
+            // Update winner
+            const winnerBanner = document.getElementById('winnerBanner');
+            const winnerName = document.getElementById('winnerName');
+            const winnerMargin = document.getElementById('winnerMargin');
+
+            if (btcFinal > spFinal) {
+                winnerBanner.className = 'winner-banner btc';
+                winnerName.className = 'winner-name btc';
+                winnerName.textContent = 'Bitcoin';
+                winnerMargin.innerHTML = 'Outperformed by <span>' + formatCurrency(btcFinal - spFinal) + '</span>';
+            } else {
+                winnerBanner.className = 'winner-banner sp';
+                winnerName.className = 'winner-name sp';
+                winnerName.textContent = 'S&P 500';
+                winnerMargin.innerHTML = 'Outperformed by <span>' + formatCurrency(spFinal - btcFinal) + '</span>';
+            }
+
+            // Generate timeline
+            generateTimeline(investment, years, btcCagr, spCagr);
+        }
+
+        function generateTimeline(investment, years, btcCagr, spCagr) {
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = '';
+
+            for (let year = 1; year <= years; year++) {
+                const btcValue = investment * Math.pow(1 + btcCagr, year);
+                const spValue = investment * Math.pow(1 + spCagr, year);
+
+                const row = document.createElement('div');
+                row.className = 'timeline-row';
+                row.innerHTML = `
+                    <span>Year ${year}</span>
+                    <span class="btc">${formatCurrency(btcValue)}</span>
+                    <span class="sp">${formatCurrency(spValue)}</span>
+                `;
+                timeline.appendChild(row);
+            }
+        }
+
+        // Auto-calculate on input change
+        document.querySelectorAll('input').forEach(el => {
+            el.addEventListener('input', calculate);
+        });
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
