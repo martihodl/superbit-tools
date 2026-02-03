@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inflation Calculator | What's Your Money Really Worth?</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --red: #ef4444;
+            --green: #22c55e;
+            --dark-bg: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --card-border: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .emoji-header {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            margin-bottom: 15px;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--btc-orange);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-orange {
+            background: var(--btc-orange);
+            color: white;
+        }
+
+        .btn-orange:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(247, 147, 26, 0.3);
+        }
+
+        /* Results */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .result-box {
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .result-box.fiat {
+            background: linear-gradient(135deg, #1a1a1a, #2a1515);
+            border: 2px solid var(--red);
+        }
+
+        .result-box.btc {
+            background: linear-gradient(135deg, #1a1a1a, #1a2515);
+            border: 2px solid var(--green);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .result-icon {
+            font-size: 2rem;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .result-title.red { color: var(--red); }
+        .result-title.green { color: var(--green); }
+
+        .result-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .result-value.red { color: var(--red); }
+        .result-value.green { color: var(--green); }
+        .result-value.orange { color: var(--btc-orange); }
+
+        .result-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .result-detail {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        /* Visual comparison */
+        .visual-compare {
+            margin-top: 30px;
+            padding: 25px;
+            background: var(--dark-bg);
+            border-radius: 12px;
+        }
+
+        .compare-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        .bars-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 200px;
+            gap: 40px;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bar {
+            width: 80px;
+            border-radius: 8px 8px 0 0;
+            transition: height 0.5s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .bar.fiat {
+            background: linear-gradient(to top, var(--red), #ff6b6b);
+            color: white;
+        }
+
+        .bar.btc {
+            background: linear-gradient(to top, var(--green), #4ade80);
+            color: white;
+        }
+
+        .bar-label {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Loss counter */
+        .loss-counter {
+            text-align: center;
+            padding: 30px;
+            margin-top: 25px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+        }
+
+        .loss-label {
+            color: var(--red);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .loss-amount {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--red);
+        }
+
+        .loss-detail {
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            margin-top: 30px;
+        }
+
+        .timeline-title {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+
+        .timeline-row {
+            display: flex;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .timeline-year {
+            width: 80px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .timeline-fiat {
+            flex: 1;
+            color: var(--red);
+        }
+
+        .timeline-btc {
+            flex: 1;
+            text-align: right;
+            color: var(--green);
+        }
+
+        /* Quote */
+        .quote-box {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(247, 147, 26, 0.08);
+            border-left: 4px solid var(--btc-orange);
+            border-radius: 0 12px 12px 0;
+        }
+
+        .quote-text {
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .quote-author {
+            color: var(--btc-orange);
+            font-weight: 600;
+        }
+
+        .disclaimer {
+            margin-top: 30px;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 700px) {
+            .comparison-container { grid-template-columns: 1fr; }
+            .bars-container { flex-direction: column; height: auto; }
+            .bar { width: 100%; height: 60px !important; border-radius: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="emoji-header">💸</div>
+            <h1>The Inflation Calculator</h1>
+            <p class="tagline">See what inflation is really costing you — and what Bitcoin could change</p>
+        </header>
+
+        <div class="card">
+            <div class="card-title">📊 Your Scenario</div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Amount Saved</label>
+                    <input type="number" id="amount" value="10000" min="100">
+                </div>
+                <div class="input-group">
+                    <label>Time Period (Years)</label>
+                    <input type="number" id="years" value="10" min="1" max="50">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Annual Inflation Rate</label>
+                    <select id="inflation">
+                        <option value="3">3% (Optimistic)</option>
+                        <option value="5" selected>5% (Recent average)</option>
+                        <option value="7">7% (High inflation)</option>
+                        <option value="10">10% (Very high)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Bitcoin CAGR (Historical)</label>
+                    <select id="btcGrowth">
+                        <option value="15">15% (Conservative)</option>
+                        <option value="25" selected>25% (Base case)</option>
+                        <option value="40">40% (Bull case)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn btn-orange" onclick="calculate()">Calculate Real Impact</button>
+        </div>
+
+        <!-- Results -->
+        <div class="card">
+            <div class="card-title">📈 Results After <span id="yearsDisplay">10</span> Years</div>
+
+            <div class="comparison-container">
+                <div class="result-box fiat">
+                    <div class="result-header">
+                        <span class="result-icon">💵</span>
+                        <span class="result-title red">Dollar Savings</span>
+                    </div>
+                    <div class="result-value red" id="fiatValue">$6,139</div>
+                    <div class="result-subtitle">Real purchasing power</div>
+                    <div class="result-detail">
+                        <div class="detail-row">
+                            <span class="detail-label">Started with</span>
+                            <span class="detail-value" id="fiatStart">$10,000</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Inflation loss</span>
+                            <span class="detail-value" style="color: var(--red);" id="fiatLoss">-$3,861</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">% Lost</span>
+                            <span class="detail-value" style="color: var(--red);" id="fiatLossPercent">-38.6%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-box btc">
+                    <div class="result-header">
+                        <span class="result-icon">₿</span>
+                        <span class="result-title green">Bitcoin Savings</span>
+                    </div>
+                    <div class="result-value green" id="btcValue">$93,132</div>
+                    <div class="result-subtitle">Projected value</div>
+                    <div class="result-detail">
+                        <div class="detail-row">
+                            <span class="detail-label">Started with</span>
+                            <span class="detail-value" id="btcStart">$10,000</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Appreciation</span>
+                            <span class="detail-value" style="color: var(--green);" id="btcGain">+$83,132</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">% Gained</span>
+                            <span class="detail-value" style="color: var(--green);" id="btcGainPercent">+831.3%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visual-compare">
+                <div class="compare-title">Visual Comparison (Starting: <span id="startAmountDisplay">$10,000</span>)</div>
+                <div class="bars-container">
+                    <div class="bar-group">
+                        <div class="bar fiat" id="barFiat" style="height: 100px;"></div>
+                        <div class="bar-label">Dollars<br>(After Inflation)</div>
+                    </div>
+                    <div class="bar-group">
+                        <div class="bar btc" id="barBtc" style="height: 150px;"></div>
+                        <div class="bar-label">Bitcoin<br>(Projected)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loss-counter">
+                <div class="loss-label">💔 Opportunity Cost of Not Holding Bitcoin</div>
+                <div class="loss-amount" id="opportunityCost">$86,993</div>
+                <div class="loss-detail">The difference between holding dollars vs. Bitcoin</div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-title">📅 Year-by-Year Breakdown</div>
+                <div id="timelineContainer">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <div class="quote-box">
+            <div class="quote-text">"Inflation is taxation without legislation."</div>
+            <div class="quote-author">— Milton Friedman</div>
+        </div>
+
+        <div class="disclaimer">
+            ⚠️ <strong>Not Financial Advice.</strong> Bitcoin is volatile and past performance doesn't guarantee future results. 
+            This calculator uses historical averages and projections that may not reflect actual outcomes. 
+            Always do your own research.
+        </div>
+    </div>
+
+    <script>
+        function formatCurrency(num) {
+            const absNum = Math.abs(num);
+            if (absNum >= 1000000) {
+                return (num < 0 ? '-' : '') + '$' + (absNum / 1000000).toFixed(2) + 'M';
+            }
+            return (num < 0 ? '-' : '') + '$' + absNum.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        }
+
+        function calculate() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const years = parseInt(document.getElementById('years').value);
+            const inflation = parseFloat(document.getElementById('inflation').value) / 100;
+            const btcGrowth = parseFloat(document.getElementById('btcGrowth').value) / 100;
+
+            // Fiat calculations (purchasing power after inflation)
+            const fiatValue = amount / Math.pow(1 + inflation, years);
+            const fiatLoss = fiatValue - amount;
+            const fiatLossPercent = (fiatLoss / amount) * 100;
+
+            // Bitcoin calculations
+            const btcValue = amount * Math.pow(1 + btcGrowth, years);
+            const btcGain = btcValue - amount;
+            const btcGainPercent = (btcGain / amount) * 100;
+
+            // Opportunity cost
+            const opportunityCost = btcValue - fiatValue;
+
+            // Update display
+            document.getElementById('yearsDisplay').textContent = years;
+            document.getElementById('startAmountDisplay').textContent = formatCurrency(amount);
+
+            document.getElementById('fiatValue').textContent = formatCurrency(fiatValue);
+            document.getElementById('fiatStart').textContent = formatCurrency(amount);
+            document.getElementById('fiatLoss').textContent = formatCurrency(fiatLoss);
+            document.getElementById('fiatLossPercent').textContent = fiatLossPercent.toFixed(1) + '%';
+
+            document.getElementById('btcValue').textContent = formatCurrency(btcValue);
+            document.getElementById('btcStart').textContent = formatCurrency(amount);
+            document.getElementById('btcGain').textContent = '+' + formatCurrency(btcGain);
+            document.getElementById('btcGainPercent').textContent = '+' + btcGainPercent.toFixed(1) + '%';
+
+            document.getElementById('opportunityCost').textContent = formatCurrency(opportunityCost);
+
+            // Visual bars
+            const maxVal = Math.max(fiatValue, btcValue);
+            const minHeight = 40;
+            const maxHeight = 180;
+
+            const fiatHeight = Math.max(minHeight, (fiatValue / maxVal) * maxHeight);
+            const btcHeight = Math.max(minHeight, (btcValue / maxVal) * maxHeight);
+
+            document.getElementById('barFiat').style.height = fiatHeight + 'px';
+            document.getElementById('barFiat').textContent = formatCurrency(fiatValue);
+            document.getElementById('barBtc').style.height = btcHeight + 'px';
+            document.getElementById('barBtc').textContent = formatCurrency(btcValue);
+
+            // Timeline
+            generateTimeline(amount, years, inflation, btcGrowth);
+        }
+
+        function generateTimeline(amount, years, inflation, btcGrowth) {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+
+            // Header
+            const header = document.createElement('div');
+            header.className = 'timeline-row';
+            header.style.fontWeight = '600';
+            header.innerHTML = `
+                <div class="timeline-year">Year</div>
+                <div class="timeline-fiat">Dollar Value</div>
+                <div class="timeline-btc">Bitcoin Value</div>
+            `;
+            container.appendChild(header);
+
+            // Show key years
+            const keyYears = [1, 2, 3, 5, 10, 15, 20, 25, 30].filter(y => y <= years);
+            if (!keyYears.includes(years)) keyYears.push(years);
+
+            keyYears.forEach(year => {
+                const fiatVal = amount / Math.pow(1 + inflation, year);
+                const btcVal = amount * Math.pow(1 + btcGrowth, year);
+
+                const row = document.createElement('div');
+                row.className = 'timeline-row';
+                row.innerHTML = `
+                    <div class="timeline-year">Year ${year}</div>
+                    <div class="timeline-fiat">${formatCurrency(fiatVal)}</div>
+                    <div class="timeline-btc">${formatCurrency(btcVal)}</div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Auto-calculate on change
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('change', calculate);
+            el.addEventListener('input', calculate);
+        });
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>

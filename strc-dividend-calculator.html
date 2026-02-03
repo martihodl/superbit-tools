@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$STRC Dividend Calculator | Bitcoin-Backed Income</title>
+    <style>
+        :root {
+            --purple-main: #8b5cf6;
+            --purple-dark: #7c3aed;
+            --purple-light: #a78bfa;
+            --btc-orange: #f7931a;
+            --dark-bg: #09090b;
+            --card-bg: #18181b;
+            --card-border: #27272a;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-strc {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--purple-main);
+        }
+
+        .logo-divider {
+            width: 3px;
+            height: 40px;
+            background: var(--card-border);
+            border-radius: 2px;
+        }
+
+        .logo-btc {
+            font-size: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .highlight {
+            color: var(--purple-main);
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--dark-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--purple-main);
+        }
+
+        .input-prefix {
+            padding: 0 15px;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .quick-btn:hover {
+            border-color: var(--purple-main);
+            color: var(--purple-main);
+        }
+
+        .slider-container {
+            margin-bottom: 25px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .slider-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .slider-value {
+            color: var(--purple-main);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--card-border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--purple-main);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
+        }
+
+        .info-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .info-box strong {
+            color: var(--purple-main);
+        }
+
+        /* Results */
+        .results-card {
+            background: linear-gradient(135deg, var(--card-bg), #1e1e2e);
+            border: 2px solid var(--purple-main);
+        }
+
+        .result-main {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--purple-main), #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .result-sub {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .breakdown-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .breakdown-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .breakdown-value.purple { color: var(--purple-main); }
+        .breakdown-value.green { color: var(--green); }
+        .breakdown-value.orange { color: var(--btc-orange); }
+
+        .breakdown-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Schedule */
+        .schedule {
+            margin-top: 30px;
+        }
+
+        .schedule-title {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .schedule-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .schedule-quarter {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .schedule-amount {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        /* Tax Info */
+        .tax-callout {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .tax-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tax-badge {
+            background: var(--green);
+            color: var(--dark-bg);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tax-title {
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        .tax-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Projection */
+        .projection {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .projection-title {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .projection-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .projection-year {
+            font-weight: 500;
+        }
+
+        .projection-value {
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        .projection-cumulative {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Strategy Info */
+        .strategy-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: rgba(247, 147, 26, 0.08);
+            border-radius: 12px;
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .strategy-stat {
+            padding: 0 15px;
+        }
+
+        .strategy-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--btc-orange);
+        }
+
+        .strategy-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 3px;
+        }
+
+        .disclaimer {
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .disclaimer strong {
+            color: var(--red);
+        }
+
+        @media (max-width: 600px) {
+            .breakdown-grid { grid-template-columns: 1fr; }
+            .schedule-grid { grid-template-columns: repeat(2, 1fr); }
+            .result-value { font-size: 2.5rem; }
+            .strategy-stats { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="logo-strc">$STRC</div>
+                <div class="logo-divider"></div>
+                <div class="logo-btc">₿</div>
+            </div>
+            <h1>Dividend Calculator</h1>
+            <p class="tagline">Calculate your <span class="highlight">Bitcoin-backed income</span> from Strategy preferred stock</p>
+        </header>
+
+        <div class="card">
+            <div class="card-title">💰 Your Investment</div>
+
+            <div class="input-group">
+                <label>Investment Amount</label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input type="number" id="investment" value="10000" min="100">
+                </div>
+                <div class="quick-amounts">
+                    <button class="quick-btn" onclick="setAmount(1000)">$1,000</button>
+                    <button class="quick-btn" onclick="setAmount(5000)">$5,000</button>
+                    <button class="quick-btn" onclick="setAmount(10000)">$10,000</button>
+                    <button class="quick-btn" onclick="setAmount(25000)">$25,000</button>
+                    <button class="quick-btn" onclick="setAmount(50000)">$50,000</button>
+                    <button class="quick-btn" onclick="setAmount(100000)">$100,000</button>
+                </div>
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-header">
+                    <span class="slider-label">Annual Dividend Rate</span>
+                    <span class="slider-value" id="rateDisplay">11.25%</span>
+                </div>
+                <input type="range" id="rate" min="5" max="15" step="0.25" value="11.25" oninput="updateRate()">
+            </div>
+
+            <div class="info-box">
+                <strong>Current Rate:</strong> As of February 2026, $STRC has an <strong>11.25%</strong> annualized dividend rate. 
+                Dividends are paid quarterly.
+            </div>
+        </div>
+
+        <div class="card results-card">
+            <div class="card-title">📊 Your Dividend Income</div>
+
+            <div class="result-main">
+                <div class="result-label">Annual Dividend Income</div>
+                <div class="result-value" id="annualDividend">$1,125</div>
+                <div class="result-sub">Before any taxes or fees</div>
+            </div>
+
+            <div class="breakdown-grid">
+                <div class="breakdown-item">
+                    <div class="breakdown-value green" id="monthlyDividend">$93.75</div>
+                    <div class="breakdown-label">Monthly (averaged)</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-value purple" id="quarterlyDividend">$281.25</div>
+                    <div class="breakdown-label">Per Quarter</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-value orange" id="dailyDividend">$3.08</div>
+                    <div class="breakdown-label">Daily (averaged)</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-value green" id="yieldOnCost">11.25%</div>
+                    <div class="breakdown-label">Yield on Cost</div>
+                </div>
+            </div>
+
+            <div class="schedule">
+                <div class="schedule-title">📅 Quarterly Payment Schedule</div>
+                <div class="schedule-grid">
+                    <div class="schedule-item">
+                        <div class="schedule-quarter">Q1</div>
+                        <div class="schedule-amount" id="q1">$281</div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-quarter">Q2</div>
+                        <div class="schedule-amount" id="q2">$281</div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-quarter">Q3</div>
+                        <div class="schedule-amount" id="q3">$281</div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-quarter">Q4</div>
+                        <div class="schedule-amount" id="q4">$281</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tax-callout">
+                <div class="tax-header">
+                    <span class="tax-badge">TAX-EFFICIENT</span>
+                    <span class="tax-title">Return of Capital Treatment</span>
+                </div>
+                <div class="tax-text">
+                    100% of Strategy's 2025 distributions were treated as <strong>Return of Capital (ROC)</strong>, 
+                    which is tax-free to the extent of your cost basis. Consult a tax professional for your specific situation.
+                </div>
+            </div>
+
+            <div class="projection">
+                <div class="projection-title">📈 5-Year Projection (Reinvested)</div>
+                <div id="projectionTable">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+
+            <div class="strategy-stats">
+                <div class="strategy-stat">
+                    <div class="strategy-value">713,502</div>
+                    <div class="strategy-label">BTC Treasury</div>
+                </div>
+                <div class="strategy-stat">
+                    <div class="strategy-value">$54.3B</div>
+                    <div class="strategy-label">BTC Value</div>
+                </div>
+                <div class="strategy-stat">
+                    <div class="strategy-value">11.25%</div>
+                    <div class="strategy-label">Current Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ Not Financial Advice.</strong> This calculator is for educational purposes only. 
+            $STRC is a volatile security tied to Bitcoin's performance. You can lose money. 
+            Dividend rates can change. Past performance does not guarantee future results. 
+            Always do your own research.
+        </div>
+    </div>
+
+    <script>
+        function setAmount(amount) {
+            document.getElementById('investment').value = amount;
+            calculate();
+        }
+
+        function updateRate() {
+            const rate = document.getElementById('rate').value;
+            document.getElementById('rateDisplay').textContent = rate + '%';
+            calculate();
+        }
+
+        function formatCurrency(num) {
+            if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(2) + 'M';
+            }
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function calculate() {
+            const investment = parseFloat(document.getElementById('investment').value) || 0;
+            const rate = parseFloat(document.getElementById('rate').value) / 100;
+
+            const annual = investment * rate;
+            const quarterly = annual / 4;
+            const monthly = annual / 12;
+            const daily = annual / 365;
+
+            document.getElementById('annualDividend').textContent = formatCurrency(annual);
+            document.getElementById('monthlyDividend').textContent = formatCurrency(monthly);
+            document.getElementById('quarterlyDividend').textContent = formatCurrency(quarterly);
+            document.getElementById('dailyDividend').textContent = '$' + daily.toFixed(2);
+            document.getElementById('yieldOnCost').textContent = (rate * 100).toFixed(2) + '%';
+
+            document.getElementById('q1').textContent = formatCurrency(quarterly);
+            document.getElementById('q2').textContent = formatCurrency(quarterly);
+            document.getElementById('q3').textContent = formatCurrency(quarterly);
+            document.getElementById('q4').textContent = formatCurrency(quarterly);
+
+            // 5-year projection with reinvestment
+            const projectionTable = document.getElementById('projectionTable');
+            projectionTable.innerHTML = '';
+
+            let balance = investment;
+            let totalDividends = 0;
+
+            for (let year = 1; year <= 5; year++) {
+                const yearDividend = balance * rate;
+                totalDividends += yearDividend;
+                balance += yearDividend; // Reinvest
+
+                const row = document.createElement('div');
+                row.className = 'projection-row';
+                row.innerHTML = `
+                    <span class="projection-year">Year ${year}</span>
+                    <span>
+                        <span class="projection-value">+${formatCurrency(yearDividend)}</span>
+                        <span class="projection-cumulative"> (${formatCurrency(balance)} total)</span>
+                    </span>
+                `;
+                projectionTable.appendChild(row);
+            }
+
+            // Add total row
+            const totalRow = document.createElement('div');
+            totalRow.className = 'projection-row';
+            totalRow.style.borderTop = '2px solid var(--purple-main)';
+            totalRow.style.marginTop = '10px';
+            totalRow.style.paddingTop = '15px';
+            totalRow.innerHTML = `
+                <span class="projection-year" style="color: var(--purple-main); font-weight: 600;">5-Year Total</span>
+                <span>
+                    <span class="projection-value" style="color: var(--purple-main);">${formatCurrency(totalDividends)}</span>
+                    <span class="projection-cumulative"> in dividends</span>
+                </span>
+            `;
+            projectionTable.appendChild(totalRow);
+        }
+
+        // Auto-calculate on input change
+        document.getElementById('investment').addEventListener('input', calculate);
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>

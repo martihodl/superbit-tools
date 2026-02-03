@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin FIRE Calculator | When Can You Retire?</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --dark-bg: #0a0a0f;
+            --card-bg: #12121a;
+            --card-border: #2a2a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #888899;
+            --green: #00d084;
+            --red: #ff4757;
+            --purple: #9b59b6;
+            --blue: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .fire-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, var(--btc-orange), #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 800px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-icon.orange { background: rgba(247, 147, 26, 0.15); }
+        .card-icon.green { background: rgba(0, 208, 132, 0.15); }
+        .card-icon.purple { background: rgba(155, 89, 182, 0.15); }
+
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px;
+            padding-right: 50px;
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--btc-orange);
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .slider-group {
+            margin-bottom: 25px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .slider-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .slider-value {
+            color: var(--btc-orange);
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--card-border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--btc-orange);
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--btc-orange), #ff6b35);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
+        }
+
+        /* Results Section */
+        .result-card {
+            background: linear-gradient(135deg, var(--card-bg), #1a1a2e);
+            border: 2px solid var(--btc-orange);
+        }
+
+        .fire-result {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .fire-year {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--btc-orange), #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .fire-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        .fire-countdown {
+            margin-top: 15px;
+            font-size: 1.3rem;
+        }
+
+        .countdown-number {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-number.orange { color: var(--btc-orange); }
+        .stat-number.green { color: var(--green); }
+        .stat-number.purple { color: var(--purple); }
+        .stat-number.blue { color: var(--blue); }
+
+        .stat-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Comparison Section */
+        .comparison {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .comparison h3 {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .compare-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .compare-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .compare-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .compare-value {
+            font-weight: 600;
+        }
+
+        .compare-value.never {
+            color: var(--red);
+        }
+
+        /* Assumptions */
+        .assumptions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(247, 147, 26, 0.08);
+            border-radius: 12px;
+            border-left: 4px solid var(--btc-orange);
+        }
+
+        .assumptions h4 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: var(--btc-orange);
+        }
+
+        .assumptions ul {
+            list-style: none;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .assumptions li {
+            padding: 5px 0;
+        }
+
+        .assumptions li::before {
+            content: "•";
+            color: var(--btc-orange);
+            margin-right: 8px;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Scenarios */
+        .scenarios {
+            margin-top: 25px;
+        }
+
+        .scenarios h3 {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .scenario-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .scenario-card {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .scenario-card:hover {
+            border-color: var(--btc-orange);
+        }
+
+        .scenario-card.active {
+            background: rgba(247, 147, 26, 0.1);
+            border-color: var(--btc-orange);
+        }
+
+        .scenario-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .scenario-growth {
+            color: var(--btc-orange);
+            font-size: 0.85rem;
+        }
+
+        .scenario-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .scenario-cards { grid-template-columns: 1fr; }
+            .fire-year { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="fire-icon">🔥</div>
+            <h1>Bitcoin <span>FIRE</span> Calculator</h1>
+            <p class="tagline">Financial Independence, Retire Early — powered by sound money</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Input Section -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon orange">📊</div>
+                    <h2>Your Financial Picture</h2>
+                </div>
+
+                <div class="input-group">
+                    <label>Current Age</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="age" value="30" min="18" max="80">
+                        <span class="input-suffix">years</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Current Bitcoin Holdings</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="currentBtc" value="0.1" step="0.01" min="0">
+                        <span class="input-suffix">BTC</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Monthly Bitcoin Purchases</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="monthlyBuy" value="500" min="0">
+                        <span class="input-suffix">USD</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Annual Expenses (Retirement)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="expenses" value="50000" min="10000">
+                        <span class="input-suffix">USD</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Current BTC Price</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="btcPrice" value="97000" min="1000">
+                        <span class="input-suffix">USD</span>
+                    </div>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span class="slider-label">Safe Withdrawal Rate</span>
+                        <span class="slider-value" id="swrDisplay">4%</span>
+                    </div>
+                    <input type="range" id="swr" min="2" max="6" step="0.5" value="4">
+                </div>
+
+                <div class="scenarios">
+                    <h3>Bitcoin Growth Scenario</h3>
+                    <div class="scenario-cards">
+                        <div class="scenario-card" onclick="setScenario(15)">
+                            <div class="scenario-name">🐻 Bear</div>
+                            <div class="scenario-growth">15% CAGR</div>
+                            <div class="scenario-desc">Conservative</div>
+                        </div>
+                        <div class="scenario-card active" onclick="setScenario(25)">
+                            <div class="scenario-name">📈 Base</div>
+                            <div class="scenario-growth">25% CAGR</div>
+                            <div class="scenario-desc">Historical avg</div>
+                        </div>
+                        <div class="scenario-card" onclick="setScenario(40)">
+                            <div class="scenario-name">🚀 Bull</div>
+                            <div class="scenario-growth">40% CAGR</div>
+                            <div class="scenario-desc">Optimistic</div>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="btcCagr" value="25">
+
+                <button class="btn btn-primary" onclick="calculate()">Calculate FIRE Date</button>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card result-card">
+                <div class="card-header">
+                    <div class="card-icon green">🎯</div>
+                    <h2>Your FIRE Journey</h2>
+                </div>
+
+                <div class="fire-result">
+                    <div class="fire-year" id="fireYear">2032</div>
+                    <div class="fire-subtitle">Your Bitcoin FIRE Date</div>
+                    <div class="fire-countdown">
+                        <span class="countdown-number" id="yearsToFire">8</span> years from now
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-number orange" id="fireBtc">2.5</div>
+                        <div class="stat-desc">BTC at FIRE</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number green" id="fireValue">$2.4M</div>
+                        <div class="stat-desc">Portfolio Value</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number purple" id="fireAge">38</div>
+                        <div class="stat-desc">Age at FIRE</div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-number blue" id="totalInvested">$48K</div>
+                        <div class="stat-desc">Total Invested</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number green" id="fireNumber">$1.25M</div>
+                        <div class="stat-desc">FIRE Number</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number orange" id="monthlyWithdraw">$4.2K</div>
+                        <div class="stat-desc">Monthly (SWR)</div>
+                    </div>
+                </div>
+
+                <div class="comparison">
+                    <h3>🔄 Without Bitcoin (Traditional Path)</h3>
+                    <div class="compare-row">
+                        <div class="compare-label">
+                            <div class="compare-dot" style="background: var(--text-secondary);"></div>
+                            <span>Savings Account (4%)</span>
+                        </div>
+                        <div class="compare-value never" id="tradFire">Never</div>
+                    </div>
+                    <div class="compare-row">
+                        <div class="compare-label">
+                            <div class="compare-dot" style="background: var(--blue);"></div>
+                            <span>Stock Market (10%)</span>
+                        </div>
+                        <div class="compare-value" id="stockFire" style="color: var(--blue);">2048</div>
+                    </div>
+                    <div class="compare-row">
+                        <div class="compare-label">
+                            <div class="compare-dot" style="background: var(--btc-orange);"></div>
+                            <span>Bitcoin</span>
+                        </div>
+                        <div class="compare-value" id="btcFireCompare" style="color: var(--btc-orange);">2032</div>
+                    </div>
+                </div>
+
+                <div class="assumptions">
+                    <h4>📋 Assumptions Used</h4>
+                    <ul>
+                        <li>BTC price grows at selected CAGR (compounded annually)</li>
+                        <li>Monthly purchases at averaged price (simplified DCA)</li>
+                        <li>FIRE number = Annual Expenses ÷ SWR</li>
+                        <li>No taxes considered (consult a professional)</li>
+                        <li>Past performance ≠ future results</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            ⚠️ <strong>Not Financial Advice.</strong> This calculator is for educational and entertainment purposes only. 
+            Bitcoin is extremely volatile. Past performance does not guarantee future results. 
+            Never invest more than you can afford to lose. Consult a financial advisor before making investment decisions.
+        </div>
+    </div>
+
+    <script>
+        let btcCagr = 25;
+
+        function setScenario(cagr) {
+            btcCagr = cagr;
+            document.getElementById('btcCagr').value = cagr;
+            document.querySelectorAll('.scenario-card').forEach(card => card.classList.remove('active'));
+            event.target.closest('.scenario-card').classList.add('active');
+            calculate();
+        }
+
+        function formatCurrency(num) {
+            if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return '$' + (num / 1000).toFixed(0) + 'K';
+            }
+            return '$' + num.toLocaleString();
+        }
+
+        function calculate() {
+            const age = parseInt(document.getElementById('age').value);
+            const currentBtc = parseFloat(document.getElementById('currentBtc').value);
+            const monthlyBuy = parseFloat(document.getElementById('monthlyBuy').value);
+            const expenses = parseFloat(document.getElementById('expenses').value);
+            const btcPrice = parseFloat(document.getElementById('btcPrice').value);
+            const swr = parseFloat(document.getElementById('swr').value) / 100;
+            const cagr = btcCagr / 100;
+
+            // FIRE number
+            const fireNumber = expenses / swr;
+            const monthlyWithdraw = expenses / 12;
+
+            // Calculate years to FIRE with Bitcoin
+            let btcHoldings = currentBtc;
+            let currentPrice = btcPrice;
+            let yearsToFire = 0;
+            let portfolioValue = btcHoldings * currentPrice;
+            let totalInvested = currentBtc * btcPrice;
+
+            while (portfolioValue < fireNumber && yearsToFire < 50) {
+                yearsToFire++;
+                // Add yearly purchases (monthly * 12)
+                const yearlyBuy = monthlyBuy * 12;
+                totalInvested += yearlyBuy;
+                // Average buy price (simplified)
+                const avgYearPrice = currentPrice * (1 + cagr / 2);
+                btcHoldings += yearlyBuy / avgYearPrice;
+                // Price appreciation
+                currentPrice *= (1 + cagr);
+                portfolioValue = btcHoldings * currentPrice;
+            }
+
+            const fireYear = new Date().getFullYear() + yearsToFire;
+            const fireAge = age + yearsToFire;
+
+            // Traditional calculations
+            let tradYears = calculateTraditionalFire(currentBtc * btcPrice, monthlyBuy * 12, 0.04, fireNumber);
+            let stockYears = calculateTraditionalFire(currentBtc * btcPrice, monthlyBuy * 12, 0.10, fireNumber);
+
+            // Update display
+            document.getElementById('fireYear').textContent = yearsToFire >= 50 ? 'Beyond 50y' : fireYear;
+            document.getElementById('yearsToFire').textContent = yearsToFire >= 50 ? '50+' : yearsToFire;
+            document.getElementById('fireBtc').textContent = btcHoldings.toFixed(2);
+            document.getElementById('fireValue').textContent = formatCurrency(portfolioValue);
+            document.getElementById('fireAge').textContent = fireAge;
+            document.getElementById('totalInvested').textContent = formatCurrency(totalInvested);
+            document.getElementById('fireNumber').textContent = formatCurrency(fireNumber);
+            document.getElementById('monthlyWithdraw').textContent = formatCurrency(monthlyWithdraw);
+
+            // Comparison
+            document.getElementById('tradFire').textContent = tradYears >= 50 ? 'Never' : (new Date().getFullYear() + tradYears);
+            document.getElementById('stockFire').textContent = stockYears >= 50 ? 'Never' : (new Date().getFullYear() + stockYears);
+            document.getElementById('btcFireCompare').textContent = yearsToFire >= 50 ? 'Beyond 50y' : fireYear;
+
+            // Style comparison values
+            document.getElementById('tradFire').className = 'compare-value' + (tradYears >= 50 ? ' never' : '');
+        }
+
+        function calculateTraditionalFire(startValue, yearlyAdd, rate, target) {
+            let value = startValue;
+            let years = 0;
+            while (value < target && years < 50) {
+                years++;
+                value = value * (1 + rate) + yearlyAdd;
+            }
+            return years;
+        }
+
+        // Update SWR display
+        document.getElementById('swr').addEventListener('input', function() {
+            document.getElementById('swrDisplay').textContent = this.value + '%';
+            calculate();
+        });
+
+        // Auto-calculate on input change
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>

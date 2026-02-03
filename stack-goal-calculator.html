@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack to Goal Calculator | SuperBit</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --btc-orange-dark: #e8850f;
+            --dark-bg: #0d1117;
+            --card-bg: #161b22;
+            --card-border: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --green: #3fb950;
+            --red: #f85149;
+            --purple: #a371f7;
+            --blue: #58a6ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 20px rgba(247, 147, 26, 0.5));
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--btc-orange), #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 22px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--btc-orange);
+        }
+
+        .input-hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--btc-orange), #ffa940);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
+        }
+
+        /* Goal Visualization */
+        .goal-viz {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .goal-amount {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--btc-orange);
+            margin-bottom: 10px;
+        }
+
+        .goal-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+
+        .progress-container {
+            background: var(--dark-bg);
+            border-radius: 20px;
+            padding: 8px;
+            margin: 25px 0;
+        }
+
+        .progress-bar {
+            height: 24px;
+            border-radius: 16px;
+            background: linear-gradient(90deg, var(--btc-orange), #ffd700);
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dark-bg);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: var(--dark-bg);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.orange { color: var(--btc-orange); }
+        .stat-value.green { color: var(--green); }
+        .stat-value.purple { color: var(--purple); }
+        .stat-value.blue { color: var(--blue); }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Timeline */
+        .timeline {
+            margin-top: 30px;
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--dark-bg);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--btc-orange);
+            margin-right: 15px;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-date {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .timeline-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .timeline-btc {
+            font-weight: 600;
+            color: var(--btc-orange);
+        }
+
+        /* Milestones */
+        .milestones {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .milestone {
+            text-align: center;
+            padding: 15px 20px;
+            background: var(--dark-bg);
+            border-radius: 10px;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .milestone.reached {
+            background: rgba(247, 147, 26, 0.15);
+            border: 1px solid var(--btc-orange);
+        }
+
+        .milestone-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--btc-orange);
+        }
+
+        .milestone-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Preset Goals */
+        .preset-goals {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 10px 18px;
+            border: 2px solid var(--card-border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--btc-orange);
+            color: var(--btc-orange);
+        }
+
+        .preset-btn.active {
+            background: var(--btc-orange);
+            border-color: var(--btc-orange);
+            color: white;
+        }
+
+        /* Sats Mode */
+        .sats-display {
+            text-align: center;
+            padding: 20px;
+            background: var(--dark-bg);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .sats-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--btc-orange);
+            font-family: 'Courier New', monospace;
+        }
+
+        .sats-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(139, 148, 158, 0.1);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .hidden { display: none; }
+
+        /* Fun Facts */
+        .fun-fact {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(255, 215, 0, 0.1));
+            border-left: 4px solid var(--btc-orange);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .fun-fact-title {
+            font-weight: 600;
+            color: var(--btc-orange);
+            margin-bottom: 5px;
+        }
+
+        .fun-fact-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🎯</div>
+            <h1>Stack to Goal Calculator</h1>
+            <p class="subtitle">How long until you reach your Bitcoin target?</p>
+        </header>
+
+        <div class="card">
+            <h2><span class="emoji">💰</span> Set Your Goal</h2>
+            
+            <div class="preset-goals">
+                <button class="preset-btn" onclick="setGoal(0.01)">0.01 BTC</button>
+                <button class="preset-btn" onclick="setGoal(0.1)">0.1 BTC</button>
+                <button class="preset-btn active" onclick="setGoal(0.21)">0.21 BTC</button>
+                <button class="preset-btn" onclick="setGoal(0.5)">0.5 BTC</button>
+                <button class="preset-btn" onclick="setGoal(1)">1 BTC</button>
+                <button class="preset-btn" onclick="setGoal(2.1)">2.1 BTC</button>
+            </div>
+
+            <div class="grid">
+                <div class="input-group">
+                    <label>Bitcoin Goal (BTC)</label>
+                    <input type="number" id="goalBtc" value="0.21" step="0.001" min="0.001">
+                    <div class="input-hint">21M club starts at 0.21 BTC (1 in 100M)</div>
+                </div>
+                <div class="input-group">
+                    <label>Current Holdings (BTC)</label>
+                    <input type="number" id="currentBtc" value="0" step="0.001" min="0">
+                    <div class="input-hint">How much do you already have?</div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="input-group">
+                    <label>Weekly DCA Amount ($)</label>
+                    <input type="number" id="weeklyDca" value="100" min="1">
+                    <div class="input-hint">Your weekly Bitcoin buy</div>
+                </div>
+                <div class="input-group">
+                    <label>Current BTC Price ($)</label>
+                    <input type="number" id="btcPrice" value="97000" min="1000">
+                    <div class="input-hint">For calculations</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="calculate()">Calculate My Stack Journey</button>
+        </div>
+
+        <!-- Results -->
+        <div class="card" id="results">
+            <div class="goal-viz">
+                <div class="goal-amount" id="goalDisplay">0.21 BTC</div>
+                <div class="goal-label">Your Bitcoin Goal</div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%">
+                        <span class="progress-text" id="progressText">0%</span>
+                    </div>
+                </div>
+
+                <div class="milestones">
+                    <div class="milestone" id="m1">
+                        <div class="milestone-value">10%</div>
+                        <div class="milestone-label">Started</div>
+                    </div>
+                    <div class="milestone" id="m2">
+                        <div class="milestone-value">25%</div>
+                        <div class="milestone-label">Quarter</div>
+                    </div>
+                    <div class="milestone" id="m3">
+                        <div class="milestone-value">50%</div>
+                        <div class="milestone-label">Halfway</div>
+                    </div>
+                    <div class="milestone" id="m4">
+                        <div class="milestone-value">75%</div>
+                        <div class="milestone-label">Almost</div>
+                    </div>
+                    <div class="milestone" id="m5">
+                        <div class="milestone-value">100%</div>
+                        <div class="milestone-label">Goal!</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value orange" id="btcNeeded">0.21</div>
+                    <div class="stat-label">BTC Still Needed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value green" id="timeToGoal">52 weeks</div>
+                    <div class="stat-label">Time to Goal</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value purple" id="totalCost">$20,370</div>
+                    <div class="stat-label">Estimated Cost</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value blue" id="targetDate">Feb 2027</div>
+                    <div class="stat-label">Target Date</div>
+                </div>
+            </div>
+
+            <div class="sats-display">
+                <div class="sats-amount" id="satsNeeded">21,000,000</div>
+                <div class="sats-label">satoshis to stack</div>
+            </div>
+
+            <div class="timeline" id="timeline">
+                <div class="timeline-title">📅 Your Stacking Journey</div>
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="fun-fact" id="funFact">
+                <div class="fun-fact-title">💡 Did You Know?</div>
+                <div class="fun-fact-text" id="funFactText">Loading...</div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            ⚠️ Not Financial Advice. This calculator assumes constant BTC price, which is unrealistic. 
+            Actual results will vary. Bitcoin is volatile. Only invest what you can afford to lose.
+        </div>
+    </div>
+
+    <script>
+        const funFacts = [
+            "Owning 0.21 BTC puts you in the top 1/100,000,000 of potential Bitcoin holders (21M ÷ 0.21 = 100M people max).",
+            "If everyone on Earth wanted Bitcoin, each person could only have 0.0026 BTC (21M ÷ 8B people).",
+            "There are only 21 million Bitcoin - less than there are millionaires in the world (~60 million).",
+            "Satoshi Nakamoto chose 21 million as the cap because it roughly mirrors the estimated amount of gold that has ever been mined.",
+            "A 'whole coiner' (owning 1+ BTC) will become increasingly rare. There can only ever be 21 million of them maximum.",
+            "Bitcoin's smallest unit (1 satoshi) is worth more in purchasing power than many countries' currencies.",
+            "At current stacking rate, you're building wealth that can be passed to generations. Bitcoin is generational.",
+            "Every sat you stack is one less sat available for everyone else. This is a zero-sum game for hard money.",
+            "The last Bitcoin will be mined around the year 2140. You're early.",
+            "Strategy holds 713,502 BTC. Even they started with zero."
+        ];
+
+        function setGoal(btc) {
+            document.getElementById('goalBtc').value = btc;
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            calculate();
+        }
+
+        function formatNumber(num) {
+            return num.toLocaleString('en-US');
+        }
+
+        function calculate() {
+            const goal = parseFloat(document.getElementById('goalBtc').value);
+            const current = parseFloat(document.getElementById('currentBtc').value) || 0;
+            const weeklyDca = parseFloat(document.getElementById('weeklyDca').value);
+            const btcPrice = parseFloat(document.getElementById('btcPrice').value);
+
+            const needed = Math.max(0, goal - current);
+            const satsNeeded = Math.round(needed * 100000000);
+            const weeksToGoal = Math.ceil((needed * btcPrice) / weeklyDca);
+            const totalCost = needed * btcPrice;
+            const progress = Math.min(100, (current / goal) * 100);
+
+            // Target date
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + (weeksToGoal * 7));
+            const targetDateStr = targetDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+            // Update display
+            document.getElementById('goalDisplay').textContent = goal + ' BTC';
+            document.getElementById('btcNeeded').textContent = needed.toFixed(4);
+            document.getElementById('timeToGoal').textContent = formatTimespan(weeksToGoal);
+            document.getElementById('totalCost').textContent = '$' + formatNumber(Math.round(totalCost));
+            document.getElementById('targetDate').textContent = targetDateStr;
+            document.getElementById('satsNeeded').textContent = formatNumber(satsNeeded);
+
+            // Progress bar
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = progress.toFixed(1) + '%';
+
+            // Milestones
+            updateMilestones(progress);
+
+            // Timeline
+            generateTimeline(current, goal, weeklyDca, btcPrice);
+
+            // Fun fact
+            document.getElementById('funFactText').textContent = funFacts[Math.floor(Math.random() * funFacts.length)];
+        }
+
+        function formatTimespan(weeks) {
+            if (weeks < 4) return weeks + ' weeks';
+            if (weeks < 52) return Math.round(weeks / 4.33) + ' months';
+            const years = Math.floor(weeks / 52);
+            const remainingMonths = Math.round((weeks % 52) / 4.33);
+            if (remainingMonths === 0) return years + (years === 1 ? ' year' : ' years');
+            return years + 'y ' + remainingMonths + 'm';
+        }
+
+        function updateMilestones(progress) {
+            const milestones = [10, 25, 50, 75, 100];
+            milestones.forEach((m, i) => {
+                const el = document.getElementById('m' + (i + 1));
+                if (progress >= m) {
+                    el.classList.add('reached');
+                } else {
+                    el.classList.remove('reached');
+                }
+            });
+        }
+
+        function generateTimeline(current, goal, weeklyDca, btcPrice) {
+            const timeline = document.getElementById('timeline');
+            const title = timeline.querySelector('.timeline-title');
+            timeline.innerHTML = '';
+            timeline.appendChild(title);
+
+            const milestones = [0.01, 0.05, 0.1, 0.21, 0.5, 1, 2.1, 6.15, 21];
+            const relevantMilestones = milestones.filter(m => m > current && m <= goal * 1.5);
+
+            // Add starting point
+            const startItem = createTimelineItem('Now', 'Starting point', current.toFixed(4) + ' BTC');
+            timeline.appendChild(startItem);
+
+            // Add milestone items
+            relevantMilestones.forEach(milestone => {
+                const btcToMilestone = milestone - current;
+                const weeksToMilestone = Math.ceil((btcToMilestone * btcPrice) / weeklyDca);
+                const date = new Date();
+                date.setDate(date.getDate() + (weeksToMilestone * 7));
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                
+                let desc = getMilestoneDesc(milestone);
+                const item = createTimelineItem(dateStr, desc, milestone + ' BTC');
+                timeline.appendChild(item);
+            });
+
+            // Add goal
+            if (!relevantMilestones.includes(goal)) {
+                const btcToGoal = goal - current;
+                const weeksToGoal = Math.ceil((btcToGoal * btcPrice) / weeklyDca);
+                const goalDate = new Date();
+                goalDate.setDate(goalDate.getDate() + (weeksToGoal * 7));
+                const goalDateStr = goalDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                
+                const goalItem = createTimelineItem(goalDateStr, '🎯 GOAL REACHED!', goal + ' BTC');
+                timeline.appendChild(goalItem);
+            }
+        }
+
+        function createTimelineItem(date, desc, btc) {
+            const item = document.createElement('div');
+            item.className = 'timeline-item';
+            item.innerHTML = `
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">${date}</div>
+                    <div class="timeline-desc">${desc}</div>
+                </div>
+                <div class="timeline-btc">${btc}</div>
+            `;
+            return item;
+        }
+
+        function getMilestoneDesc(btc) {
+            const descriptions = {
+                0.01: 'First 1 million sats!',
+                0.05: '5 million sats stacked',
+                0.1: 'Double digits!',
+                0.21: '🏆 21 Million Club (1 in 100M)',
+                0.5: 'Half a Bitcoin!',
+                1: '🎉 Whole Coiner Status!',
+                2.1: 'Top 1 in 10 Million',
+                6.15: 'More BTC than average holder',
+                21: 'One millionth of all Bitcoin'
+            };
+            return descriptions[btc] || 'Milestone reached';
+        }
+
+        // Initial calculation
+        calculate();
+
+        // Recalculate on input change
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+    </script>
+</body>
+</html>

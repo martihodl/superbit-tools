@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sat Converter | How Many Sats?</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --dark-bg: #0c0c0c;
+            --card-bg: #161616;
+            --card-border: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --green: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+        }
+
+        .converter-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            background: var(--dark-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .input-row:focus-within {
+            border-color: var(--btc-orange);
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .input-row input:focus {
+            outline: none;
+        }
+
+        .input-row .unit {
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .input-row .unit.btc { color: var(--btc-orange); }
+        .input-row .unit.sats { color: var(--green); }
+
+        .arrow-divider {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin: 20px 0;
+        }
+
+        .result-section {
+            text-align: center;
+        }
+
+        .result-main {
+            margin-bottom: 30px;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--green);
+            font-family: 'SF Mono', 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .conversions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .conversion-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .conversion-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .conversion-value.orange { color: var(--btc-orange); }
+        .conversion-value.green { color: var(--green); }
+
+        .conversion-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .price-input {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .price-row input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .price-row input:focus {
+            outline: none;
+            border-color: var(--btc-orange);
+        }
+
+        .fun-facts {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(247, 147, 26, 0.08);
+            border-radius: 12px;
+        }
+
+        .fun-fact {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .fun-fact strong {
+            color: var(--btc-orange);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 400px) {
+            .conversions { grid-template-columns: 1fr; }
+            .result-value { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">⚡</div>
+            <h1>Sat Converter</h1>
+            <p class="tagline">Convert between USD, BTC, and Satoshis</p>
+        </header>
+
+        <div class="converter-card">
+            <div class="input-section">
+                <div class="input-row">
+                    <input type="number" id="usdInput" placeholder="0.00" oninput="convertFromUSD()">
+                    <div class="unit">USD</div>
+                </div>
+                
+                <div class="arrow-divider">↕</div>
+                
+                <div class="input-row">
+                    <input type="number" id="btcInput" placeholder="0.00000000" step="0.00000001" oninput="convertFromBTC()">
+                    <div class="unit btc">BTC</div>
+                </div>
+                
+                <div class="arrow-divider">↕</div>
+                
+                <div class="input-row">
+                    <input type="number" id="satsInput" placeholder="0" oninput="convertFromSats()">
+                    <div class="unit sats">SATS</div>
+                </div>
+            </div>
+
+            <div class="conversions">
+                <div class="conversion-box">
+                    <div class="conversion-value green" id="satPerDollar">10,309</div>
+                    <div class="conversion-label">sats per dollar</div>
+                </div>
+                <div class="conversion-box">
+                    <div class="conversion-value orange" id="dollarPerSat">$0.000097</div>
+                    <div class="conversion-label">per sat</div>
+                </div>
+            </div>
+
+            <div class="price-input">
+                <div class="price-row">
+                    <span class="price-label">BTC Price:</span>
+                    <input type="number" id="btcPrice" value="97000" oninput="updateConversions()">
+                    <span class="price-label">USD</span>
+                </div>
+            </div>
+
+            <div class="fun-facts">
+                <div class="fun-fact" id="funFact">
+                    <strong>1 BTC = 100,000,000 satoshis</strong><br>
+                    Named after Bitcoin's creator, Satoshi Nakamoto
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            SuperBit Tools ₿
+        </footer>
+    </div>
+
+    <script>
+        const SATS_PER_BTC = 100000000;
+        
+        function getPrice() {
+            return parseFloat(document.getElementById('btcPrice').value) || 97000;
+        }
+
+        function formatSats(sats) {
+            return Math.round(sats).toLocaleString();
+        }
+
+        function formatBTC(btc) {
+            return btc.toFixed(8);
+        }
+
+        function formatUSD(usd) {
+            return usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function convertFromUSD() {
+            const usd = parseFloat(document.getElementById('usdInput').value) || 0;
+            const price = getPrice();
+            const btc = usd / price;
+            const sats = btc * SATS_PER_BTC;
+            
+            document.getElementById('btcInput').value = btc > 0 ? formatBTC(btc) : '';
+            document.getElementById('satsInput').value = sats > 0 ? Math.round(sats) : '';
+            updateRates();
+        }
+
+        function convertFromBTC() {
+            const btc = parseFloat(document.getElementById('btcInput').value) || 0;
+            const price = getPrice();
+            const usd = btc * price;
+            const sats = btc * SATS_PER_BTC;
+            
+            document.getElementById('usdInput').value = usd > 0 ? formatUSD(usd) : '';
+            document.getElementById('satsInput').value = sats > 0 ? Math.round(sats) : '';
+            updateRates();
+        }
+
+        function convertFromSats() {
+            const sats = parseFloat(document.getElementById('satsInput').value) || 0;
+            const price = getPrice();
+            const btc = sats / SATS_PER_BTC;
+            const usd = btc * price;
+            
+            document.getElementById('usdInput').value = usd > 0 ? formatUSD(usd) : '';
+            document.getElementById('btcInput').value = btc > 0 ? formatBTC(btc) : '';
+            updateRates();
+        }
+
+        function updateConversions() {
+            const price = getPrice();
+            const satsPerDollar = SATS_PER_BTC / price;
+            const dollarPerSat = price / SATS_PER_BTC;
+            
+            document.getElementById('satPerDollar').textContent = formatSats(satsPerDollar);
+            document.getElementById('dollarPerSat').textContent = '$' + dollarPerSat.toFixed(6);
+            
+            // Re-convert from whatever has value
+            const usd = document.getElementById('usdInput').value;
+            const btc = document.getElementById('btcInput').value;
+            const sats = document.getElementById('satsInput').value;
+            
+            if (usd) convertFromUSD();
+            else if (btc) convertFromBTC();
+            else if (sats) convertFromSats();
+        }
+
+        function updateRates() {
+            const price = getPrice();
+            const satsPerDollar = SATS_PER_BTC / price;
+            const dollarPerSat = price / SATS_PER_BTC;
+            
+            document.getElementById('satPerDollar').textContent = formatSats(satsPerDollar);
+            document.getElementById('dollarPerSat').textContent = '$' + dollarPerSat.toFixed(6);
+        }
+
+        // Fun facts rotation
+        const facts = [
+            '<strong>1 BTC = 100,000,000 satoshis</strong><br>Named after Bitcoin\'s creator, Satoshi Nakamoto',
+            '<strong>Smallest unit on-chain:</strong> 1 satoshi<br>Lightning Network can handle even smaller units (millisats)',
+            '<strong>Fun fact:</strong> If BTC hits $1M, 1 sat = $0.01<br>A penny for a sat!',
+            '<strong>Stack sats:</strong> Even small amounts add up<br>100 sats/day = 36,500 sats/year',
+            '<strong>21 quadrillion sats</strong> will ever exist<br>(21M BTC × 100M sats)'
+        ];
+
+        let factIndex = 0;
+        setInterval(() => {
+            factIndex = (factIndex + 1) % facts.length;
+            document.getElementById('funFact').innerHTML = facts[factIndex];
+        }, 5000);
+
+        // Initial setup
+        updateConversions();
+    </script>
+</body>
+</html>

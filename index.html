@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperBit Tools | Bitcoin Income Machine</title>
+    <style>
+        :root {
+            --btc-orange: #f7931a;
+            --dark-bg: #0a0a0f;
+            --card-bg: #12121a;
+            --card-border: #252530;
+            --text-primary: #ffffff;
+            --text-secondary: #8888aa;
+            --green: #22c55e;
+            --purple: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 30px rgba(247, 147, 26, 0.4));
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--btc-orange), #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 50px;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--btc-orange);
+            box-shadow: 0 20px 40px rgba(247, 147, 26, 0.15);
+        }
+
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .tool-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .tool-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .tool-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tag-income { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+        .tag-savings { background: rgba(247, 147, 26, 0.15); color: var(--btc-orange); }
+        .tag-fire { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .tag-dividend { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+        .tag-education { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+
+        .trinity-section {
+            margin-top: 60px;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--card-bg), #1a1a2e);
+            border-radius: 24px;
+            border: 1px solid var(--card-border);
+        }
+
+        .trinity-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--btc-orange);
+        }
+
+        .trinity-items {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .trinity-item {
+            text-align: center;
+        }
+
+        .trinity-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .trinity-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .trinity-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .footer-brand {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--btc-orange);
+        }
+
+        .disclaimer {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .tools-grid { grid-template-columns: 1fr; }
+            .trinity-items { flex-direction: column; gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">₿</div>
+            <h1>SuperBit Tools</h1>
+            <p class="tagline">Free calculators to help you build your Bitcoin income machine</p>
+        </header>
+
+        <div class="tools-grid">
+            <a href="bitcoin-income-calculator.html" class="tool-card">
+                <div class="tool-icon">💰</div>
+                <div class="tool-name">Bitcoin Income Calculator</div>
+                <div class="tool-desc">
+                    Calculate your projected income from a Bitcoin portfolio including BTC appreciation and $STRC dividends.
+                </div>
+                <span class="tool-tag tag-income">Income</span>
+            </a>
+
+            <a href="stack-goal-calculator.html" class="tool-card">
+                <div class="tool-icon">🎯</div>
+                <div class="tool-name">Stack to Goal Calculator</div>
+                <div class="tool-desc">
+                    Plan your journey to your Bitcoin goal. See how long it takes to reach whole coiner status or join the 21M club.
+                </div>
+                <span class="tool-tag tag-savings">Savings</span>
+            </a>
+
+            <a href="bitcoin-fire-calculator.html" class="tool-card">
+                <div class="tool-icon">🔥</div>
+                <div class="tool-name">Bitcoin FIRE Calculator</div>
+                <div class="tool-desc">
+                    When can you retire with Bitcoin? Calculate your Financial Independence date and compare strategies.
+                </div>
+                <span class="tool-tag tag-fire">FIRE</span>
+            </a>
+
+            <a href="strc-dividend-calculator.html" class="tool-card">
+                <div class="tool-icon">💎</div>
+                <div class="tool-name">$STRC Dividend Calculator</div>
+                <div class="tool-desc">
+                    Calculate your dividend income from Strategy's preferred stock. See quarterly payments and 5-year projections.
+                </div>
+                <span class="tool-tag tag-dividend">Dividends</span>
+            </a>
+
+            <a href="inflation-calculator.html" class="tool-card">
+                <div class="tool-icon">💸</div>
+                <div class="tool-name">Inflation Calculator</div>
+                <div class="tool-desc">
+                    See what inflation really costs you. Compare dollar savings vs Bitcoin over time.
+                </div>
+                <span class="tool-tag tag-education">Education</span>
+            </a>
+
+            <a href="sat-converter.html" class="tool-card">
+                <div class="tool-icon">⚡</div>
+                <div class="tool-name">Sat Converter</div>
+                <div class="tool-desc">
+                    Convert between USD, BTC, and Satoshis instantly. See how many sats your dollars buy.
+                </div>
+                <span class="tool-tag tag-education">Education</span>
+            </a>
+        </div>
+
+        <div class="trinity-section">
+            <h2 class="trinity-title">The Bitcoin Income Trinity</h2>
+            <div class="trinity-items">
+                <div class="trinity-item">
+                    <div class="trinity-icon">₿</div>
+                    <div class="trinity-name">Bitcoin (BTC)</div>
+                    <div class="trinity-desc">The foundation. Stack and hold.</div>
+                </div>
+                <div class="trinity-item">
+                    <div class="trinity-icon">📈</div>
+                    <div class="trinity-name">$BTCI</div>
+                    <div class="trinity-desc">Yield from the network.</div>
+                </div>
+                <div class="trinity-item">
+                    <div class="trinity-icon">💰</div>
+                    <div class="trinity-name">$STRC</div>
+                    <div class="trinity-desc">Bitcoin-backed dividends.</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-text">Built for the Bitcoin community</div>
+            <div class="footer-brand">SuperBit ₿</div>
+            <div class="disclaimer">
+                ⚠️ Not Financial Advice. These tools are for educational purposes only. 
+                Bitcoin is volatile. Always do your own research.
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
